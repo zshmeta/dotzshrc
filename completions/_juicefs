@@ -1,0 +1,43 @@
+# juicefs completion for Zsh
+
+_juicefs() {
+  local -a commands
+  commands=(
+    'auth:Authorize a volume'
+    'destroy:Destroy an existing volume'
+    'gc:Garbage collector of objects in data storage'
+    'fsck:Check consistency of a volume'
+    'dump:Dump metadata into a JSON file'
+    'load:Load metadata from a previously dumped JSON file'
+    'version:Show version'
+    'quota:Manage directory quotas'
+    'heal:Heal a replicated volume'
+    'status:Show status of a volume'
+    'stats:Show real time performance statistics of JuiceFS'
+    'profile:Show profiling of operations completed in JuiceFS'
+    'info:Show internal information of a path or inode'
+    'summary:Show data and files distribution of a directory'
+    'debug:Collect and display system static and runtime information'
+    'doctor:Collect and display system static and runtime information'
+    'lsof:List open files'
+    'mount:Mount a volume'
+    'umount:Unmount a volume'
+    'gateway:Start an S3-compatible gateway'
+    'webdav:Start a WebDAV server'
+    'bench:Run benchmarks on a path'
+    'benchmark:Run benchmarks on a path'
+    'objbench:Run benchmarks on an object storage'
+    'warmup:Build cache for target directories/files'
+    'clone:Clone a file/directory without copying data'
+    'snapshot:Clone a file/directory without copying data'
+    'rmr:Remove directories recursively'
+    'sync:Sync between two storages'
+    'import:Import existing files from object storage'
+    'merge:merge files together without copying'
+    'grep:parallelized file pattern searcher'
+    'help:Shows a list of commands or help for one command'
+  )
+  _describe -t commands 'JuiceFS commands' commands
+}
+
+compdef _juicefs juicefs

@@ -1,0 +1,69 @@
+#!/bin/bash 
+
+#
+# Setting some mc function
+#
+
+
+
+mcc() {
+  cmd="$1"
+  shift
+  local found_arg=false
+  local args=()
+  for arg in "$@"; do
+      if [[ "$arg" != -* && "$arg" != .* && "$found_arg" == false ]]; then
+          args+=("minio/$arg")
+          found_arg=true
+      else
+          args+=("$arg")
+      fi
+  done
+  if [[ "$found_arg" == false ]]; then
+      args+=("minio/")
+  fi
+  command mc "$cmd" "${args[@]}"
+}
+
+
+# mrun would get the file chmod it run it then suppress it
+#
+mrun() {
+    if [ -z "$1" ]; then
+        echo "Usage: mrun <file>"
+        return 1
+    fi
+    mc cp minio/scripts/"$1" "$1"
+    # shellcheck disable=SC2181
+    if [ $? -ne 0 ]; then
+        echo "Error: failed to copy $1"
+        return 1
+    fi
+
+    chmod +x "$1"
+    bash "$1" 
+    rm -rf "$1"
+}
+
+# msource does the sam but source the file
+#
+msource() {
+    if [ -z "$1" ]; then
+        echo "Usage: msource <file>"
+        return 1
+    fi
+    mc copy minio/funcs/"$1" "$1"
+    # shellcheck disable=SC2181
+    if [ $? -ne 0 ]; then
+        echo "Error: failed to copy $1"
+        return 1
+    fi
+
+    chmod +x "$1"
+    # shellcheck disable=SC1090
+    source "$1" 
+    cat "$1"
+    rm -rf "$1"
+}
+
+

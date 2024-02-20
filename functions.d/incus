@@ -1,0 +1,409 @@
+#!/bin/bash
+
+## With a loop we take the args and set them with incit_process which also runs process-inc_size to set the sizes
+
+error() {
+    echo "Error: $1" >&2
+    return "${2:-1}"
+}
+
+arch=$(uname -m)
+arch=${arch/x86_64/amd64}
+arch=${arch/aarch64/arm64}
+
+  incimg() {
+      incus image list -c dl -f compact images: | awk '{print $1, $2, $3}' | sort | uniq | grep "$arch"
+  }
+
+
+## List of distros and their versions
+
+  rezo_distros=("debian/12" "alpine/edge" "centos/9-Stream" "ubuntu/jammy" "oracle/9" "rockylinux/9" "fedora/39" "amazonlinux/2023" "alt/Sisyphus" "archlinux/current" "almalinux/9" "devuan/chimaera" "funtoo/1.4" "gentoo/current" "kali/current" "mint/victoria" "openeuler/23.03" "opensuse/tumbleweed" "openwrt/23.05" "springdalelinux/9" "plame/8.x" "slackware/current" "busybox/1.36.1" "nixos/23.11" "voidlinux/current"
+  )
+
+## Completion / Args
+
+
+  rezo_images=(
+    "amazonlinux:Amazon's distro for the AWS ecosystem"
+    "alpine:a lightweight distro for light tasks"
+    "archlinux:a rolling release distro for experienced users"
+    "almalinux:almalinux version 9, community-backed enterprise OS"
+    "centos:a rolling-release distro for enterprise applications"
+    "debian:a popular and stable universal operating system"
+    "devuan:Debian without systemd"
+    "fedora:cutting-edge free and open source platform"
+    "funtoo:a Gentoo-based distro with advanced features"
+    "gentoo:a flexible, source-based Linux distribution"
+    "kali:a distro for hackers and security professionals"
+    "mint:an elegant, easy-to-use, up-to-date distro"
+    "openeuler:an innovative, unified, and open OS"
+    "opensuse:a rolling release version of opensuse"
+    "openwrt:a Linux OS for embedded devices"
+    "oracle:enterprise-level, cloud-optimized Linux distribution"
+    "slackware:a powerful and advanced Linux distribution"
+    "ubuntu:Ubuntu LTS version, a popular and user-friendly distro"
+    "busybox:Minimalist Unix tools in a single executable for version 1.36.1"
+    "nixos:an independent distro with a unique package management"
+    "rockylinux:a community enterprise OS compatible with RHEL"
+    "voidlinux:a general-purpose distro with a focus on stability"
+
+   )
+   export rezo_images
+
+   rezo_size=(
+       "mini: cpu=1, RAM=512MB, disk=10GB"
+       "pocket: cpu=1, RAM=1024MB, disk=20GB"
+       "desk: cpu=2, RAM=2GB, disk=30GB"
+       "workspace: cpu=4, RAM=3GB, disk=40GB"
+       "enterprise: cpu=4, RAM=4GB disk=50GB"
+       "custom: set your own size"
+     )
+    
+    _incit_comp() {
+        export machine_types
+      if (( CURRENT == 2 )); then
+         _message 'Pick an image to start'
+         _describe -V 'image name' rezo_images
+      elif (( CURRENT == 3 )); then
+        _message 'Set the desired size'
+        _describe  -V 'machine types' rezo_size
+      elif (( CURRENT == 4 )); then
+      _message 'Set a name for your gites'
+      elif (( CURRENT == 5 )); then
+        _message 'press enter to run or add vm to run in vm mode'
+      elif (( CURRENT == 6 )); then 
+        _message 'press enter to run or add vm to run in vm mode'
+      fi
+    }
+
+## Process args and set variables
+
+
+select_with_fzf() {
+  local prompt="$1" options=("${@:2}") 
+  printf '%s\n' "${options[@]}" | fzf --prompt="$prompt" --preview="echo {}" --preview-window=up:3:hidden --bind=enter:accept --ansi --cycle --height=40% --reverse --color=16 --border --ansi --margin 1 --info inline --header "$prompt"
+}
+
+process_inc_size() {
+  case "$size" in
+    mini) cpu="1"; ram="512MB"; disk="10GB" ;;
+    pocket) cpu="1"; ram="1024MB"; disk="20GB" ;;
+    desk) cpu="2"; ram="2048MB"; disk="30GB" ;;
+    workspace) cpu="4"; ram="4096MB"; disk="40GB" ;;
+    enterprise) cpu="4"; ram="4096MB"; disk="50GB" ;;
+    custom)
+    cores_options=("1" "2" "3" "4")
+    ram_options=("512MB" "1024MB" "2048MB" "4096MB" "Custom")
+    disk_options=("10GB" "20GB" "30GB" "40GB" "Custom")
+      cpu=$(select_with_fzf "Select the number of cores" "${cores_options[@]}")
+      ram=$(select_with_fzf "Select the amount of RAM" "${ram_options[@]}")
+      [[ "$ram" == "Custom" ]] && read -rp "Enter custom RAM value (e.g., 6144MB): " ram
+      disk=$(select_with_fzf "Select the amount of disk space" "${disk_options[@]}")
+      [[ "$disk" == "Custom" ]] && read -rp "Enter custom disk value (e.g., 60GB): " disk
+      ;;
+    *) echo "Invalid size specified" >&2; return 1 ;;
+  esac
+
+  export cpu ram disk
+}
+
+
+
+incit_process(){
+  ## loop through the args and check for images from rezo_image and/or sizes from rezo_size
+  ## if found set the variables
+
+  for arg in "$@"; do
+    for image in "${rezo_distros[@]}"; do
+      if [[ "$arg" == "$(echo "$image" | cut -d '/' -f1)" ]]; then
+        os="$image"
+      fi
+    done
+    for type in "${rezo_size[@]}"; do
+      if [[ "$arg" == "$(echo "$type" | cut -d ':' -f1)" ]]; then
+        size="$arg"
+      fi
+    done
+  done
+
+  ## if no image is found inform the user and exit
+  if [ -z "$os" ]; then
+    echo "Error: No image specified." >&2
+    return 1
+  fi
+
+  ## if no size is found set size to custom quietle
+  if [ -z "$size" ]; then
+    size="custom"
+  fi
+  ## Check all args for vm or --vm or -vm if true set vm to true
+     VM=false
+     cont="lxc"
+  for arg in "$@"; do
+    if [[ "$arg" == "vm" || "$arg" == "--vm" || "$arg" == "-vm" ]]; then
+      cont=$arg
+      VM=true
+    fi
+  done
+  target=""
+  for arg in "$@"; do 
+  if [[ "$arg" == "target="* ]] || [[ "$arg" == "--target="* ]]; then
+  target="$arg"
+  fi
+  done
+  
+  ## Check for other args if they are not os or not size or if vm is false then set the arg as name if starts with - then set it as args
+  name=""
+  for arg in "$@"; do
+    if [[ "$arg" != "$os" && "$arg" != "$size" && "$arg" != "$cont" && "$arg" != "-*" && "$arg" != "$target" && "$arg" != "--init" ]]; then
+      name="$arg"
+    fi
+  done
+  
+init=false # Use false as the default value for boolean flags
+
+for arg in "$@"; do
+    if [[ "$arg" == "--init" ]]; then
+        init=true
+        break # Exit the loop if --init is found
+    fi
+done
+
+# Demonstration of how to use the $init variable
+if $init; then
+    echo "Initializing..."
+else
+    echo "Initialization skipped."
+fi
+  ## if no name is found set name to os-size
+  if [ -z "$name" ]; then
+   if [ "$VM" != true ]; then
+    name="$size-$os-vm"
+    else
+    name="$size-$os"
+    fi
+  fi
+
+  process_inc_size "$size" || echo "issue with setting the size"
+  # name need to be at least 3 character with letters only
+  if [[ "$name" =~ ^[a-zA-Z]{3,}$ ]]; then
+    echo "Name: $name"
+  else
+    echo "Error: Invalid name. Name must be at least 3 characters and contain only letters." >&2
+    return 1
+  fi
+  
+
+}
+
+
+
+incit() {
+   incit_process "$@" || return 1 
+   
+   # Dynamically build launch command based on VM status
+   local launch_cmd="incus launch images:\"$os\""
+   if [ "$VM" != true ]; then
+      launch_cmd+=" -c security.nesting=true -c security.privileged=false -c security.idmap.isolated=true -c limits.cpu=\"$cpu\" -c limits.memory=\"$ram\" -d root,size=\"$disk\" \"$name\" $target"
+      echo "Building a $size $os as $name"
+   else
+      launch_cmd+=" --vm -c security.secureboot=false -c limits.cpu=\"$cpu\" -c limits.memory=\"$ram\" -d root,size=\"$disk\" \"$name\" $target"
+      echo "Building a $size vm $os as $name"
+   fi
+   
+   # Execute the constructed command
+    eval "$launch_cmd" || echo "Failed to launch $name" >&2; echo "an issue occured"; read -rp "press ctrl+c" 
+
+    if [[ "$init" != true ]]; then
+        echo "Run 'incin $name' to shell into $name"
+    else
+        incinit "$name"
+    fi
+}
+
+
+compdef _incit_comp incit
+
+_incinit_names() {
+  local cache_file="/tmp/incinit_cache"
+  local project=""
+
+  # If the cache file doesn't exist, run the command and update the cache
+  if [[ ! -f "$cache_file" ]]; then
+    project=$(incus project list -f csv | sed -n 's/^\([^(]\+\) (current),.*/\1/ p' || echo "default")
+    local cmd="incus list --format=csv --columns=ns --project $project"
+    eval "$cmd" | cut -d, -f1 > "$cache_file"
+  fi
+
+  # Use the cached results for completion
+  while IFS= read -r line; do
+    compadd -- "$line"
+  done < "$cache_file"
+}
+
+incinit() {
+    #if more than one arg run incit otherwise none
+  
+    local name="$1"
+    local app="$2"  
+    echo "Welcome to Rezo2Gites"
+    echo "setting things up for you"
+    echo "please wait..."
+    ## init the gites
+    echo "initializing $name"
+    # if command apk or apt then install curl
+    incus exec "$name" -- sh -c "if command -v apk &> /dev/null; then apk add --no-cache curl bash &> /dev/null; fi"
+    incus exec "$name" -- bash -c "if command -v apt &> /dev/null; then apt install -y curl &> /dev/null; fi"
+    incus exec "$name" -- bash -c "curl -Ss https://minio.zshmeta.dev/public/gitesInit | bash"
+    figlet -c -w "$(tput cols)" -f term  "run incin $name to get in your gites" | lolcat 
+
+}
+
+compdef _incinit_names incinit
+
+incin() {
+    local name="$1"
+    echo "getting in $name"
+    if ! incus shell "$name"; then
+        echo "Failed to shell into $name"
+        return 1
+    fi
+    echo "Welcome back; How was $name?"
+}
+
+compdef _incinit_names incin
+
+inccsl() {
+    local name="$1"
+    echo "getting in $name"
+    incus console "$name"
+    echo "Welcome back; How was $name?"
+}
+
+compdef _incinit_names incin
+
+incpush() {
+    local name="$1"
+    shift
+    incus file push "$@" "$name"/
+}
+
+compdef _incinit_names inccp
+
+incpull() {
+    local name="$1"
+    shift
+    incus file pull "$@" "$name"/
+}
+
+compdef _incinit_names incpull
+
+
+incrm() {
+    local args=("$@")
+    if [[ "${args[*]}" =~ "-f" ]]; then
+        echo "removing ${args[*]}"
+        for arg in "${args[@]}"; do
+        incus exec "$arg" -- bash -c "tailscale down; tailscale logout"
+        done
+        incus delete "${args[@]}" --force
+      else
+        echo "Are you sure you want to delete ${args[*]} type yes or y to continue"
+        read -r  response
+        if [[ "$response" =~ ^([yY][eE][sS]|[yY])+$ ]]; then
+          echo "removing ${args[*]}"
+          for arg in "${args[@]}"; do
+          incus exec "$arg" -- bash -c "tailscale down; tailscale logout"
+          done
+          incus delete "${args[@]}" --force
+        else
+          echo "aborting"
+      fi
+    fi
+    rm -f /tmp/incinit_cache
+}
+
+compdef _incinit_names incrm
+
+incls() {
+    incus list
+}
+
+incx() {
+    local name="$1"
+    shift
+    incus exec "$name" -- "$@"
+}
+
+compdef _incinit_names incx
+
+
+
+_inciso_comp(){
+  if (( CURRENT == 2 )); then
+    _message 'Set size of the vm'
+    _describe -V 'machine types' rezo_size
+  elif (( CURRENT == 3 )); then
+    _message 'Set a name for your gites'
+  elif (( CURRENT == 4 )); then
+    _message 'Set the path to the iso file'
+    _files
+  fi
+}
+
+compdef _inciso_comp inciso
+
+
+
+incapp() {
+    local name="$1"
+    local app="$2"
+
+    echo "setting $app on $name"
+    echo "please wait..."
+    mc cp minio/apps/"$app" "$app" &>/dev/null || error "something went wrong"
+    incus file push ./"$app" "$name"/root/"$app" || error "something went wrong"
+    # if command apk or apt then install curl 
+    incus exec "$name" -- bash -c "chmod +x /root/$app; /root/$app" || error "something went wrong"
+    incus exec "$name" -- bash -c "rm -rf /root/$app"  || error "something went wrong"
+    rm -rf ./"$app"
+    echo "done installing $app on $name"
+}
+
+compdef _incinit_names incapp
+
+# Define the function inciso
+inciso() {
+    size="$1"
+    name="$2"
+    ISO=$(basename "$3")
+    ISOPATH=$(readlink -f "$3")
+
+    # Validate inputs: if size, name, or ISO is empty, print an error message and return 1
+    [ -z "$size" ] || [ -z "$name" ] || [ -z "$ISO" ] && { echo "Invalid arguments. Usage: inciso size name ISO"; return 1; }
+
+    # Randomly select a member from the array (vpsx, vpsxl, vpsxx) and assign it to member
+    member=$(shuf -e vpsx vpsxl vpsxx -n 1)
+
+    # Transfer the ISO to the selected member using scp or rsync
+    echo "Transferring $ISO to $member..."
+    scp "$ISOPATH" "${member}:/tmp/${ISO}" || { echo "Failed to transfer $ISO to $member"; return 1; }
+    # Alternatively, use rsync (uncomment the line below and comment the scp line above)
+    # rsync -avz "$ISOPATH" "${member}:/tmp/${ISO}" || { echo "Failed to transfer $ISO to $member"; return 1; }
+
+    # Initialize a new VM with the specified size and name on the selected member. If it fails, print an error message and return 1
+    incus init --vm --empty -c security.secureboot=false -c limits.cpu="$cpu" -c limits.memory="$ram" -d root,size="$disk" "$name" --profile=default --target="$member" || { echo "Failed to init $name"; return 1; }
+
+    # Add the ISO file as a disk device to the VM. If it fails, print an error message and return 1
+    incus config device add "$name" "$ISO" disk source="/tmp/$ISO" boot.priority=99 || { echo "Failed to add \"$name\" iso"; incus rm -f "$name"; return 1; }
+
+    # Start the VM and open the console
+    incus start "$name" --console=vga
+
+    # Ask the user whether to detach the ISO volume
+    echo "Detach the iso volume? (Y/n)"
+    read -r detach
+    [ "$detach" = "Y" ] || [ "$detach" = "y" ] && incus storage volume detach local "$name"-iso "$name"
+}
+

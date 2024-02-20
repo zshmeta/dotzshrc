@@ -1,0 +1,68 @@
+#compdef mox
+
+_mox() {
+    local -a commands
+    local -a options
+
+    _arguments -C \
+        '1: :->command' \
+        '2: :->subcommand' \
+        '*:: :->option-or-argument'
+
+    case $state in
+    command)
+        commands=(
+            'serve:Start server'
+            'quickstart:Quickstart setup'
+            'stop:Stop server'
+            'setaccountpassword:Set account password'
+            'setadminpassword:Set admin password'
+            'loglevels:Set log levels'
+            'queue:Manage mail queue'
+            'import:Import mail'
+            'export:Export mail'
+            'help:Show help'
+            # Add more commands here
+        )
+        _describe 'command' commands
+        ;;
+    subcommand)
+        case $words[2] in
+        queue)
+            options=(
+                'list:List mail queue'
+                'kick:Kick mail queue'
+                'drop:Drop mail queue'
+                'dump:Dump mail queue'
+                # Add more subcommands for "queue" here
+            )
+            _describe 'subcommand' options
+            ;;
+        import)
+            options=(
+                'maildir:Import maildir'
+                'mbox:Import mbox'
+                # Add more subcommands for "import" here
+            )
+            _describe 'subcommand' options
+            ;;
+        # Add cases for other commands with subcommands here
+        esac
+        ;;
+    option-or-argument)
+        case $words[2] in
+        quickstart)
+            _arguments '1: :->option' \
+                '--existing-webserver[Use existing webserver]' \
+                '--hostname[Specify hostname]:hostname:_hosts' \
+                '*:user@domain: '
+            ;;
+        # Define options for other subcommands or commands here
+        esac
+        ;;
+    esac
+}
+
+_mox
+
+compdef _mox mox

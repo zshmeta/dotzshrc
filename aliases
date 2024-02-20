@@ -1,0 +1,115 @@
+#!/bin/bash env
+#Alias definitions which can be edited/modified with 'aedit' are called to zshrc with +=
+
+export EDITOR="nvim"
+
+### But still use emacs-style zsh bindings
+#bindkey -e
+
+##Aliases for things
+alias c=' clear'
+alias sd='sudo '
+alias g='google'
+alias d='ddgr'
+alias nvpn='nordvpn'
+alias s='sgpt'
+alias ts="tailscale"
+alias ipme='ipme -m'
+alias ts='sudo tailscale'
+alias rmf='trash'
+alias k9='kill -9'
+alias mot='motivate | lolcat'
+alias zt="sudo zerotier-cli"
+alias cfl='cloudflared'
+alias cfltn='cloudflared tunnel'
+alias ncl="sudo netclient"
+alias sshconf="\$EDITOR \$HOME/.ssh/config"
+alias ctl="sudo systemctl"
+alias snapper="sudo snapper"
+alias btrfs="sudo btrfs"
+alias jctl="journalctl"
+alias x='ranger'
+alias b='sudo btop'
+alias btop='sudo btop'
+alias rm='rm -i'
+alias sz="source ~/.zshrc"
+alias fstab='sudo nano /etc/fstab'
+alias lsusb="lsplug"
+alias exz="exec zsh"
+alias q="exit"
+alias reboot='sudo shutdown -r now'
+alias shutdown='sudo shutdown'
+alias shutr='sudo shutdown -r now'
+alias dbx='distrobox'
+alias g='googler'
+alias brewin='brew install'
+alias brews='brew search'
+alias brewun='brew uninstall'
+alias brewup='brew upgrade'
+
+#gh
+alias cop='gh copilot'
+alias cops='gh copilot suggest'
+alias cope='gh copilot explain'
+alias 'ghclone'='gh repo clone'
+alias 'ghsr'='gh search repos'
+#cd
+alias cd=' cd'
+alias ..=' cd ..; ls'
+alias ...=' cd ..; cd ..; ls'
+alias ....=' cd ..; cd ..; cd ..; ls'
+alias cd..='..'
+alias cd...='...'
+alias cd....='....'
+#ls
+alias ls='exa  --long --grid --octal-permissions --classify --extended --icons --time=modified'
+alias lsd='lsd --date relative --icon-theme fancy --human-readable --permission octal --classify --color=always --extensionsort --group-dirs first --icon always --size short --total-size --header --blocks=permission,date,size,user,name '
+
+alias lstree='lsd --color  always --date  relative --tree  --total-size  --timesort  --icon-theme  fancy --long  --human-readable -A'
+alias la='ls -a'
+alias lla='ls -la'
+alias ltree='lsd --color  always --date  relative --tree  --total-size  --timesort  --icon-theme  fancy --long  --human-readable --tree'
+alias nls='natls -l --time-format %t'
+
+#zypper
+alias zyper="sudo zypper"
+alias zypup="sudo zypper ref"
+alias zypdup="sudo zypper dup"
+alias zypin="sudo zypper in"
+alias zyprm="sudo zypper rm"
+alias zypsr='sudo zypper search'
+#pacman
+alias pac='sudo pacman'
+alias pacman='sudo pacman'
+alias pacup="sudo pacman -Syyuuv"
+alias pacin="sudo pacman -S "
+alias pacrm="pacman -Rs"
+alias paccls='pacman -Qdtq | pacman -Rns -'
+#apt
+alias apt='sudo apt'
+alias aptup='sudo apt update'
+alias aptdup='sudo apt upgrade'
+alias aptin='sudo apt install -y'
+alias aprm='sudo apt remove'
+alias aptsr='sudo apt search'
+alias aptcls='sudo apt clean'
+#dnf
+alias dnf='sudo dnf'
+alias dnfup='sudo dnf update'
+alias dnfdup='sudo dnf upgrade'
+alias dnfin='sudo dnf install -y'
+alias dnfrm='sudo dnf remove'
+alias dnfsr='sudo dnf search'
+alias dnfcls='sudo dnf clean all'
+# yum
+alias yumup='sudo yum update'
+alias yumin='sudo yum install -y'
+alias yumrm='sudo yum remove'
+alias yumsr='sudo yum search'
+alias yumcls='sudo yum clean all'
+alias inc='incus'
+alias netcl='sudo netclient'
+
+alias brewin="brew install"
+alias brewup="brew update; brew upgrade"
+alias brews="brew search"

@@ -1,0 +1,95 @@
+#!/bin/bash
+
+# Tailscale API Key
+export TS_API_KEY=${TS_API_KEY:- }
+set_completion() {
+  local cur cmd
+  COMPREPLY=()
+  cur="${COMP_WORDS[COMP_CWORD]}"
+  cmd="${COMP_WORDS[0]}"
+  if [[ "$cmd" == "tsid" || "$cmd" == "tsget" || "$cmd" == "tsrm" || "$cmd" == "tsroute" ]]; then
+    COMPREPLY=($(compgen -W "$(tailscale status | grep offline | awk '{print $2}')" -- "$cur"))
+  fi
+}
+
+tsapi() {
+    local endpoint="$1"
+    local method="${2:-GET}"
+    local response_file=$(mktemp)
+    echo "Sending $method request to https://api.tailscale.com/api/v2/$endpoint"
+    local http_status=$(curl -s -o "$response_file" -w "%{http_code}" -X "$method" "https://api.tailscale.com/api/v2/$endpoint" -u "$TS_API_KEY:" )
+    
+    if [ "$http_status" -eq 200 ]; then
+        echo "Success: API call was successfull."
+        cat "$response_file" | jq
+    else
+        local error_message=$(jq -r '.message' < "$response_file")
+        echo "Error: API call failed with status code $http_status"
+        echo "Message: $error_message"
+    fi
+    
+    rm -f "$response_file"
+}
+
+
+# Adjusted to match hostnames with leading spaces accurately
+tsid() { 
+   local hostname="$1"
+   # Correctly suppress errors from tailscale status
+   local ip=$(tailscale status 2>/dev/null | grep "$hostname " | awk '{print $1}')
+   # Suppress errors from tailscale whois
+   local id=$(tailscale whois $ip 2>/dev/null | grep 'ID:' | awk 'NR==1 {print $2}')
+   echo "$id"
+}
+
+tslist() { tsapi "tailnet/-/devices" GET; }
+
+tsjson() { 
+  local hostname="$1"
+  local nodeId=$(tsid "$hostname")
+  if [[ -z "$nodeId" ]]; then
+    echo "Error: Device ID not found for hostname '$hostname'."
+    return 1
+  fi
+  tsapi "device/$nodeId?fields=default" GET
+}
+
+tsget() { 
+  local hostname="$1"; 
+  tsjson "$hostname"; 
+}
+
+tsrm() {
+  local hostname="$1"
+  local nodeId
+  nodeId=$(tsid "$hostname")
+  if [[ -z "$nodeId" ]]; then
+    echo "Error: Device ID not found for hostname '$hostname'."
+    return 1
+  fi
+  echo "Deleting $hostname with ID: $nodeId"
+  tsapi "device/$nodeId" DELETE
+
+} 
+
+tsroute() { 
+  local hostname="$1"
+  local nodeId=$(tsid "$hostname")
+  if [[ -z "$nodeId" ]]; then
+    echo "Error: Device ID not found for hostname '$hostname'."
+    return 1
+  fi
+  tsapi "device/$nodeId/routes" GET
+}
+
+tsname() {
+  local hostname="$1"
+  local newname="$2"
+  if ssh $hostname "hostnamectl set-hostname $newname && tailscale up --hostname $newname"; then
+    echo "Hostname and Tailscale hostname updated to $newname on $hostname."
+  else
+    echo "Error updating hostname on $hostname."
+  fi
+}
+
+complete -F set_completion tsget tsrm tsroute tsid

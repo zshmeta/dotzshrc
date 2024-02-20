@@ -1,0 +1,66 @@
+#!/bin/bash
+# shellcheck disable=SC2154
+
+TRAPALRM() {
+
+    if [[ $BUFFER == "" ]]; then
+    zle reset-prompt
+    fi
+}
+TMOUT=1
+# Array of colors 
+colors=( 196 226 46 21 51 198 228 45 )                          
+# Array of color variables
+color_variables=(color_base color_sym color_text color_num color_branch color_repo)
+
+# Shuffle colors array
+colors=("$(for i in "${colors[@]}"; do echo "$i"; done | shuf)")
+
+
+ for ((i=0; i<${#color_variables[@]}; i++)); do
+  if [[ -n "${color_variables[$i]}" ]]; then
+    eval "${color_variables[$i]}='${colors[$i]}'"
+  fi
+done
+ 
+# Array of bright colors
+colors=( 196 226 46 21 51 198 228 45 )                          
+for col in color_base color_sym color_text color_num color_branch color_repo; do
+  eval "$col"="$(shuf -e "${colors[@]}" -n 1)"
+  colors=("${colors[@]/$col}")
+done
+
+
+    autoload -Uz vcs_info
+    zstyle ':vcs_info:*' enable git
+    zstyle ':vcs_info:git:*' formats "%F{$color_sym}git%F{$color_base}:(%F{$color_branch}%b%F{$color_repo}%m%F{$color_base})" 
+    vcs_info
+
+    free=$(free -h | awk 'NR==2{print $4}')
+    tsip=$(\tailscale ip -4 2>/dev/null)
+    myip=$(curl -sSL http://ipecho.net/plain -4; echo)
+    freemem="%F{$color_base}{%F{$color_branch}RAM%F{$color_sym}:%F{$color_num}$free%F{$color_base}}"
+    RPROMPT="%F{$color_base}[%F{$color_text}%w%F{$color_sym} at %F{$color_text}%T%F{$color_base}]"
+    ts_ip="{%F{$color_branch}ip%F{$color_sym}:%F{$color_num}$tsip%F{$color_base}}"
+    my_ip="{%F{$color_branch}ip%F{$color_sym}:%F{$color_num}$myip%F{$color_base}}"
+    # RPROMPT="{%F{$color_text} %m %F{$color_base}}$RPROMPT"
+    
+distro=$(awk -F'=' '/^ID=/{print $2}' /etc/os-release | cut -d'"' -f2 | lolcat)
+
+    colors=( 196 226 46 21 51 198 228 45 )                          
+    text="ﺃ ﺏ ﺕ ﺙ ﺝ ﺡ ﺥ ﺩ ﺫ ﺭ ﺯ ﺱ ﺵ ﺹ ﺽ ﻁ ﻅ ﻉ ﻍ ﻑ ﻕ ﻙ ﻝ ﻡ ﻥ ﻩ ﻭ ﻱ"
+    interlude=""
+    for ((i = 0; i < ${#text}; i++)); do
+         # shellcheck disable=SC2128
+         interlude+="%F{$colors}%F{${colors[$RANDOM % ${#colors[@]}]}}${text:$i:1}%F{$color_base}"
+    done
+
+    zstyle ':vcs_info:*'  enable git
+    zstyle ':vcs_info:git:*' formats "%F{$color_sym}git%F{$color_base}:(%F{$color_branch}%b%F{$color_repo}%m%F{$color_base})"
+    vcs_info
+
+# shellcheck disable=SC2296
+PS1="%$COLUMNS>╡>%F{$color_base}╔┅>>{%F{$color_text}%n%F{$color_base}}┅{%F{$color_text}%m%F{$color_base}}┅(%F{$color_sym}@%F{$color_base})┅{%F{$color_num}🕒%*%F{$color_base}}┅{%F{$color_text}%d%F{$color_base}}┅{%F{$color_text}$distro%F{$color_base}}┅$ts_ip┅${vcs_info_msg_0_}┅${freemem}┅┅${my_ip}┅┅$interlude$interlude$interlude┅${(l:COLUMNS::┅:):-}%<<
+╚>>{%F{$color_text}%1d%F{$color_base}}┅(💰₿)┅%F{$color_text}👉%F{$color_base}"
+export RPROMPT
+

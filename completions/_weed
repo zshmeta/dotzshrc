@@ -1,0 +1,51 @@
+#compdef weed
+
+# Completion function for weed
+
+_weed_comp(){
+    local -a args
+    args=(
+        "backup:incrementally backup a volume to local folder"
+        "benchmark:benchmark by writing millions of files and reading them out"
+        "compact:run weed tool compact on volume file"
+        "download:download files by file id"
+        "export:list or export files from one volume data file"
+        "filer:start a file server that points to a master server, or a list of master servers"
+        "filer.backup:resume-able continuously replicate files from a SeaweedFS cluster to another location defined in replication.toml"
+        "filer.cat:copy one file to local"
+        "filer.copy:copy one or a list of files to a filer folder"
+        "filer.meta.backup:continuously backup filer meta data changes to anther filer store specified in a backup_filer.toml"
+        "filer.meta.tail:see continuous changes on a filer"
+        "filer.remote.gateway:resumable continuously write back bucket creation, deletion, and other local updates to remote object store"
+        "filer.remote.sync:resumable continuously write back updates to remote storage"
+        "filer.replicate:replicate file changes to another destination"
+        "filer.sync:resumable continuous synchronization between two active-active or active-passive SeaweedFS clusters"
+        "fix:run weed tool fix on files or whole folders to recreate index file(s) if corrupted"
+        "fuse:Allow use weed with linux's mount command"
+        "iam:start a iam API compatible server"
+        "master:start a master server"
+        "master.follower:start a master follower"
+        "mount:mount weed filer to a directory as file system in userspace(FUSE)"
+        "mq.broker:<WIP> start a message queue broker"
+        "s3:start a s3 API compatible server that is backed by a filer"
+        "scaffold:generate basic configuration files"
+        "server:start a master server, a volume server, and optionally a filer and a S3 gateway"
+        "shell:run interactive administrative commands"
+        "update:get latest or specific version from https://github.com/seaweedfs/seaweedfs"
+        "upload:upload one or a list of files"
+        "version:print SeaweedFS version"
+        "volume:start a volume server"
+        "webdav:start a webdav server that is backed by a filer"
+    )
+
+
+if (( CURRENT == 2 )); then
+  _describe 'command' args
+elif (( CURRENT == 3 )); then
+ _describe 'files, folders ...'
+fi
+
+
+}
+
+compdef _weed_comp weed

@@ -1,0 +1,306 @@
+#!/bin/bash
+
+
+
+##################### General Settings ###################################333##
+
+# Directories to store data files. Multiple directories can be separated by commas.
+DIR="-dir=/tmp"
+
+# IP or server name, used as an identifier. Defaults to the main IP if not set.
+IP="-ip=<add-ip>"
+
+MAX="max=8"
+
+VOLUME="-volume=<true-or-false>"
+
+WEBDAV="-webdav=<true-or-false>"
+
+S3="-s3=<true-or-false>"
+
+FILER="-filer=<true-or-false>"
+
+
+############################################### Master Server Settings #######################################################################################################
+
+
+
+# Master server HTTP listen port.
+# MASTER_PORT="-master.port=9333"
+
+# Master server gRPC listen port.
+# MASTER_PORT_GRPC="-master.port.grpc=<port-number>"
+
+# Data directory to store metadata, defaults to the same as -dir.
+# MASTER_DIR="-master.dir=<directory-path>"
+
+# All master nodes in a comma-separated ip:masterPort list.
+# MASTER_PEERS="-master.peers=<ip1:port1,ip2:port2,...>"
+
+# Default replication type if not specified.
+# MASTER_DEFAULT_REPLICATION="-master.defaultReplication=<replication-type>"
+
+# Preallocate disk space for volumes.
+# MASTER_VOLUME_PREALLOCATE="-master.volumePreallocate=<true-or-false>"
+
+# Volume size limit in MB.
+# MASTER_VOLUME_SIZE_LIMIT_MB="-master.volumeSizeLimitMB=30000"
+
+# Election timeout for master servers.
+# MASTER_ELECTION_TIMEOUT="-master.electionTimeout=10s"
+
+# Heartbeat interval for master servers.
+# MASTER_HEARTBEAT_INTERVAL="-master.heartbeatInterval=300ms"
+
+# Garbage collection threshold.
+# MASTER_GARBAGE_THRESHOLD="-master.garbageThreshold=0.3"
+
+# Prometheus gateway address.
+# MASTER_METRICS_ADDRESS="-master.metrics.address=<address>"
+
+# Prometheus push interval in seconds.
+# MASTER_METRICS_INTERVAL_SECONDS="-master.metrics.intervalSeconds=15"
+
+# Use HashiCorp Raft.
+# MASTER_RAFT_HASHICORP="-master.raftHashicorp=<true-or-false>"
+
+# Resume previous state on master server start.
+# MASTER_RESUME_STATE="-master.resumeState=<true-or-false>"
+
+### Volume Server Settings ###
+
+# Whether to start the volume server.
+
+# Volume server HTTP listen port.
+#VOLUME_PORT="-volume.port=8080"
+
+# Volume server gRPC listen port.
+# VOLUME_PORT_GRPC="-volume.port.grpc=<port-number>"
+
+# Volume server public HTTP port.
+# VOLUME_PORT_PUBLIC="-volume.port.public=<port-number>"
+
+# Maximum number of volumes.
+#VOLUME_MAX="-volume.max=8"
+
+# Directory to store .idx files.
+# VOLUME_DIR_IDX="-volume.dir.idx=<directory-path>"
+
+# Disk type (hdd, ssd, or a custom tag).
+# VOLUME_DISK="-volume.disk=<disk-type>"
+
+# File size limit in MB.
+# VOLUME_FILE_SIZE_LIMIT_MB="-volume.fileSizeLimitMB=256"
+
+# Limit compaction speed in MB per second.
+# VOLUME_COMPACTION_MBPS="-volume.compactionMBps=<speed-limit>"
+
+# Limit total concurrent download size.
+# VOLUME_CONCURRENT_DOWNLOAD_LIMIT_MB="-volume.concurrentDownloadLimitMB=64"
+
+# Limit total concurrent upload size.
+# VOLUME_CONCURRENT_UPLOAD_LIMIT_MB="-volume.concurrentUploadLimitMB=64"
+
+# Publicly accessible URL.
+# VOLUME_PUBLIC_URL="-volume.publicUrl=<url>"
+
+# Read mode ('local', 'proxy', or 'redirect').
+# VOLUME_READ_MODE="-volume.readMode=<mode>"
+
+# Experimental flag for managing slow reads.
+# VOLUME_HAS_SLOW_READ="-volume.hasSlowRead=<true-or-false>"
+
+# Adjust jpg orientation when uploading.
+# VOLUME_IMAGES_FIX_ORIENTATION="-volume.images.fix.orientation=<true-or-false>"
+
+# Indexing mode (memory, leveldb, etc.).
+# VOLUME_INDEX="-volume.index=<indexing-mode>"
+
+# Alive time for leveldb.
+# VOLUME_INDEX_LEVELDB_TIMEOUT="-volume.index.leveldbTimeout=<timeout>"
+
+# Timeout for inflight upload data.
+# VOLUME_INFLIGHT_UPLOAD_DATA_TIMEOUT="-volume.inflightUploadDataTimeout=<timeout>"
+
+# Minimum free disk space.
+# VOLUME_MIN_FREE_SPACE="-volume.minFreeSpace=<free-space>"
+
+# Minimum free disk space in percentage.
+# VOLUME_MIN_FREE_SPACE_PERCENT="-volume.minFreeSpacePercent=<percentage>"
+
+# Seconds between stop sending heartbeats and stopping the volume server.
+# VOLUME_PRE_STOP_SECONDS="-volume.preStopSeconds=<seconds>"
+
+# Enable pprof HTTP handlers.
+# VOLUME_PPROF="-volume.pprof=<true-or-false>"
+
+# Read buffer size in MB.
+# VOLUME_READ_BUFFER_SIZE_MB="-volume.readBufferSizeMB=<size-in-mb>"
+
+
+#################################################### Filer Server Settings #######################################################################################################
+
+# Start Filer
+# FILER="-filer=<true-or-false>"
+
+# List of allowed origins for Filer
+#FILER_ALLOWED_ORIGINS="-filer.allowedOrigins=*"
+
+# Collection name for Filer
+# FILER_COLLECTION="-filer.collection=<collection-name>"
+
+# Concurrent upload limit in MB for Filer
+#FILER_CONCURRENT_UPLOAD_LIMIT_MB="-filer.concurrentUploadLimitMB=64"
+
+# Default replication type for Filer
+# FILER_DEFAULT_REPLICA_PLACEMENT="-filer.defaultReplicaPlacement=<replication-type>"
+
+# Limit for directory listing in Filer
+#FILER_DIR_LIST_LIMIT="-filer.dirListLimit=1000"
+
+# Disable directory listing in Filer
+# FILER_DISABLE_DIR_LISTING="-filer.disableDirListing=<true-or-false>"
+
+# Disk type for Filer
+# FILER_DISK="-filer.disk=<disk-type>"
+
+# Download max speed in MBps per request for Filer
+# FILER_DOWNLOAD_MAX_MBPS="-filer.downloadMaxMBps=<speed-in-mbps>"
+
+# Encrypt data on volume servers for Filer
+# FILER_ENCRYPT_VOLUME_DATA="-filer.encryptVolumeData=<true-or-false>"
+
+# Filer group for metadata sharing
+# FILER_FILER_GROUP="-filer.filerGroup=<filer-group-name>"
+
+# Local socket for Filer
+# FILER_LOCAL_SOCKET="-filer.localSocket=<socket-path>"
+
+# Max file size in MB for Filer
+# FILER_MAX_MB="-filer.maxMB=4"
+
+# HTTP listen port for Filer
+# FILER_PORT="-filer.port=8888"
+
+# GRPC listen port for Filer
+# FILER_PORT_GRPC="-filer.port.grpc=<port-number>"
+
+# Public HTTP listen port for Filer
+# FILER_PORT_PUBLIC="-filer.port.public=<port-number>"
+
+# Cache limit for small files in Filer
+# FILER_SAVE_TO_FILER_LIMIT="-filer.saveToFilerLimit=<limit-size>"
+
+# Show delete directory button in Filer UI
+# FILER_UI_DELETE_DIR="-filer.ui.deleteDir=true"
+
+
+###################################S3 Gateway Settings##################################################################################
+
+# Start S3 gateway
+# S3="-s3=<true-or-false>"
+
+# HTTP listen port for S3
+# S3_PORT="-s3.port=8333"
+
+# GRPC listen port for S3
+# S3_PORT_GRPC="-s3.port.grpc=<port-number>"
+
+# HTTPS listen port for S3
+# S3_PORT_HTTPS="-s3.port.https=<port-number>"
+
+# Allow deleting non-empty buckets in S3
+# S3_ALLOW_DELETE_BUCKET_NOT_EMPTY="-s3.allowDeleteBucketNotEmpty=true"
+
+# Allow empty folders in S3
+# S3_ALLOW_EMPTY_FOLDER="-s3.allowEmptyFolder=true"
+
+# Allowed origins for S3
+# S3_ALLOWED_ORIGINS="-s3.allowedOrigins=*"
+
+# Audit log config file for S3
+# S3_AUDIT_LOG_CONFIG="-s3.auditLogConfig=<path-to-config-file>"
+
+# TLS CA certificate file path for S3
+# S3_CACERT_FILE="-s3.cacert.file=<path-to-cacert-file>"
+
+# TLS certificate file path for S3
+# S3_CERT_FILE="-s3.cert.file=<path-to-cert-file>"
+
+# Config file path for S3
+# S3_CONFIG="-s3.config=<path-to-config-file>"
+
+# Domain name suffix for S3
+# S3_DOMAIN_NAME="-s3.domainName=<domain-name>"
+
+# TLS private key file path for S3
+# S3_KEY_FILE="-s3.key.file=<path-to-key-file>"
+
+# Local socket for S3
+# S3_LOCAL_SOCKET="-s3.localSocket=<socket-path>"
+
+# Verify client certificate in S3
+# S3_TLS_VERIFY_CLIENT_CERT="-s3.tlsVerifyClientCert=<true-or-false>"
+
+#################################################### WebdaV Gateway Settings #######################################################################################################
+
+# Start WebDAV gateway
+
+# HTTP listen port for WebDAV
+# WEBDAV_PORT="-webdav.port=7333"
+
+# Local cache capacity in MB for WebDAV
+# WEBDAV_CACHE_CAPACITY_MB="-webdav.cacheCapacityMB=<capacity-in-mb>"
+
+# Local cache directory for file chunks for WebDAV
+# WEBDAV_CACHE_DIR="-webdav.cacheDir=/tmp"
+
+# TLS certificate file path for WebDAV
+# WEBDAV_CERT_FILE="-webdav.cert.file=<path-to-cert-file>"
+
+# Collection to create the files for WebDAV
+# WEBDAV_COLLECTION="-webdav.collection=<collection-name>"
+
+# Disk type for WebDAV
+# WEBDAV_DISK="-webdav.disk=<disk-type>"
+
+# Use this remote path from Filer server for WebDAV
+# WEBDAV_FILER_PATH="-webdav.filer.path=/"
+
+# TLS private key file path for WebDAV
+# WEBDAV_KEY_FILE="-webdav.key.file=<path-to-key-file>"
+
+# Max file size in MB for WebDAV
+WEBDAV_MAX_MB="-webdav.maxMB=4"
+
+# Replication type to create the files for WebDAV
+# WEBDAV_REPLICATION="-webdav.replication=<replication-type>"
+
+
+
+
+
+
+
+
+
+
+
+# IP address to bind to. Uses IP if not set.
+# IP_BIND="-ip.bind=<add-value>"
+
+# Current volume server's rack name.
+# RACK="-rack=<rack-name>"
+
+# Current volume server's data center name.
+# DATA_CENTER="-dataCenter=<data-center-name>"
+
+# Disable HTTP requests, allowing only gRPC operations.
+# DISABLE_HTTP="-disableHttp=<true-or-false>"
+
+# Prometheus metrics listen port.
+# METRICS_PORT="-metricsPort=<port-number>"
+
+# IP whitelist for admin operations.
+# WHITE_LIST="-whiteList=<ip-whitelist>"
+

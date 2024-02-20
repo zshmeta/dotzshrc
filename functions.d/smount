@@ -1,0 +1,9 @@
+smount() {
+  source ~/.keys
+  export AWS_ACCESS_KEY_ID=$MINIO_ACCESS_KEY
+  export AWS_SECRET_ACCESS_KEY=$MINIO_SECRET_KEY
+  bucket="$1"
+  mntpoint="$2"
+  echo "mounting $bucket to $mntpoint"
+  goofys --endpoint $MINIO_URL "$bucket" "$mntpoint"
+}
