@@ -1,5 +1,17 @@
 #!/bin/bash
 
+feedERR(){
+  local MESSAGE="$1"
+  echo -e "\033[1;91m$MESSAGE\033[0m"
+ 
+   }
+
+feedSUCCESS(){
+  local MESSAGE="$1"
+  echo -e "\033[1;92m$MESSAGE\033[0m"
+ 
+   }
+
 # Tailscale API Key
 export TS_API_KEY=${TS_API_KEY:- }
 set_completion() {
@@ -8,23 +20,26 @@ set_completion() {
   cur="${COMP_WORDS[COMP_CWORD]}"
   cmd="${COMP_WORDS[0]}"
   if [[ "$cmd" == "tsid" || "$cmd" == "tsget" || "$cmd" == "tsrm" || "$cmd" == "tsroute" ]]; then
+    # shellcheck disable=SC2207
     COMPREPLY=($(compgen -W "$(tailscale status | grep offline | awk '{print $2}')" -- "$cur"))
   fi
 }
 
 tsapi() {
+  # make the SUCCESSMESSAGE bold and blue
     local endpoint="$1"
     local method="${2:-GET}"
-    local response_file=$(mktemp)
-    echo "Sending $method request to https://api.tailscale.com/api/v2/$endpoint"
-    local http_status=$(curl -s -o "$response_file" -w "%{http_code}" -X "$method" "https://api.tailscale.com/api/v2/$endpoint" -u "$TS_API_KEY:" )
-    
+    local opts=${3:-} 
+    local response_file=""
+    response_file=$(mktemp)
+    local http_status=""
+    http_status=$(curl -s -o "$response_file" -w "%{http_code}" -X "$method" "https://api.tailscale.com/api/v2/$endpoint"  -u "$TS_API_KEY:" --data-binary "$opts" )
     if [ "$http_status" -eq 200 ]; then
-        echo "Success: API call was successfull."
-        cat "$response_file" | jq
+        feedSUCCESS "$SUCCESSMESSAGE"
     else
-        local error_message=$(jq -r '.message' < "$response_file")
-        echo "Error: API call failed with status code $http_status"
+        local error_message=""
+        error_message=$(jq -r '.message' < "$response_file")
+        feedERR "Failed to $method $endpoint. HTTP status code: $http_status"
         echo "Message: $error_message"
     fi
     
@@ -36,19 +51,25 @@ tsapi() {
 tsid() { 
    local hostname="$1"
    # Correctly suppress errors from tailscale status
-   local ip=$(tailscale status 2>/dev/null | grep "$hostname " | awk '{print $1}')
+   local ip=""
+   ip=$(tailscale status 2>/dev/null | grep "$hostname " | awk '{print $1}')
    # Suppress errors from tailscale whois
-   local id=$(tailscale whois $ip 2>/dev/null | grep 'ID:' | awk 'NR==1 {print $2}')
+   local id=""
+   id=$(tailscale whois "$ip" 2>/dev/null | grep 'ID:' | awk 'NR==1 {print $2}')
    echo "$id"
 }
 
-tslist() { tsapi "tailnet/-/devices" GET; }
+tslist() { 
+  SUCCESSMESSAGE="Devices list retrieved successfully."
+  tsapi "tailnet/-/devices" GET; 
+  }
 
 tsjson() { 
   local hostname="$1"
-  local nodeId=$(tsid "$hostname")
+  local nodeId=""
+  nodeId=$(tsid "$hostname")
   if [[ -z "$nodeId" ]]; then
-    echo "Error: Device ID not found for hostname '$hostname'."
+    feedERR "Device ID not found for hostname '$hostname'."
     return 1
   fi
   tsapi "device/$nodeId?fields=default" GET
@@ -60,11 +81,12 @@ tsget() {
 }
 
 tsrm() {
+  SUCCESSMESSAGE="Device $1 deleted successfully."
   local hostname="$1"
   local nodeId
   nodeId=$(tsid "$hostname")
   if [[ -z "$nodeId" ]]; then
-    echo "Error: Device ID not found for hostname '$hostname'."
+    feedERR "Device ID not found for hostname '$hostname'."
     return 1
   fi
   echo "Deleting $hostname with ID: $nodeId"
@@ -73,10 +95,12 @@ tsrm() {
 } 
 
 tsroute() { 
+  SUCCESSMESSAGE="Routes for device $1 "
   local hostname="$1"
-  local nodeId=$(tsid "$hostname")
+  local nodeId
+  nodeId=$(tsid "$hostname")
   if [[ -z "$nodeId" ]]; then
-    echo "Error: Device ID not found for hostname '$hostname'."
+    feedERR "Device ID not found for hostname '$hostname'."
     return 1
   fi
   tsapi "device/$nodeId/routes" GET
@@ -85,11 +109,35 @@ tsroute() {
 tsname() {
   local hostname="$1"
   local newname="$2"
-  if ssh $hostname "hostnamectl set-hostname $newname && tailscale up --hostname $newname"; then
-    echo "Hostname and Tailscale hostname updated to $newname on $hostname."
+  # shellcheck disable=SC2029
+  if ssh "$hostname" "hostnamectl set-hostname $newname && tailscale up --hostname $newname"; then
+    feedSUCCESS "Hostname for $hostname updated to $newname successfully."
   else
-    echo "Error updating hostname on $hostname."
+    feedERR "Failed to update hostname for $hostname."
   fi
 }
 
+tsip() {
+  SUCCESSMESSAGE="IP address for $1 updated to $2 successfully."
+  local hostname="$1"
+  local ip="$2"
+  local nodeId
+  # check with regex that ip is valid with 100.100.xx.xx
+  if [[ ! "$ip" =~ ^100\.100\.[0-9]{1,3}\.[0-9]{1,3}$ ]]; then
+    feedERR "Invalid IP address format. Please use 100.100.xx.xx"
+    return 1
+  fi
+  # check if ip is used by another device
+  if tailscale status 2>/dev/null | grep -q "$ip"; then
+  feedERR "IP address $ip is in use by $(tailscale status | grep "$ip " | awk '{print $2}')."
+    return 1
+  fi
+  optcalls="{\"ipv4\": \"$ip\"}"
+  nodeId=$(tsid "$hostname")
+  if [[ -z "$nodeId" ]]; then
+    feedERR "Device ID not found for hostname '$hostname'."
+    return 1
+  fi
+  tsapi "device/$nodeId/ip" "POST"  "$optcalls"
+}
 complete -F set_completion tsget tsrm tsroute tsid

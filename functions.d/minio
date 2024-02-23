@@ -6,21 +6,24 @@
 
 
 
+
+
 mcc() {
+  BUCKET=${BUCKET:-minio}
   cmd="$1"
   shift
   local found_arg=false
   local args=()
   for arg in "$@"; do
       if [[ "$arg" != -* && "$arg" != .* && "$found_arg" == false ]]; then
-          args+=("minio/$arg")
+          args+=("$BUCKET/$arg")
           found_arg=true
       else
           args+=("$arg")
       fi
   done
   if [[ "$found_arg" == false ]]; then
-      args+=("minio/")
+      args+=("$BUCKET/")
   fi
   command mc "$cmd" "${args[@]}"
 }
@@ -29,11 +32,12 @@ mcc() {
 # mrun would get the file chmod it run it then suppress it
 #
 mrun() {
+    BUCKET=${BUCKET:-minio}
     if [ -z "$1" ]; then
         echo "Usage: mrun <file>"
         return 1
     fi
-    mc cp minio/scripts/"$1" "$1"
+    mc cp $BUCKET/scripts/"$1" "$1"
     # shellcheck disable=SC2181
     if [ $? -ne 0 ]; then
         echo "Error: failed to copy $1"
@@ -48,11 +52,12 @@ mrun() {
 # msource does the sam but source the file
 #
 msource() {
+    BUCKET=${BUCKET:-minio}
     if [ -z "$1" ]; then
         echo "Usage: msource <file>"
         return 1
     fi
-    mc copy minio/funcs/"$1" "$1"
+    mc copy $BUCKET/funcs/"$1" "$1"
     # shellcheck disable=SC2181
     if [ $? -ne 0 ]; then
         echo "Error: failed to copy $1"
