@@ -1,0 +1,7 @@
+
+
+# spleeter
+
+spleeter (){
+       docker run -v $(pwd):/data researchdeezer/spleeter separate -i /data/$1  -o /data/
+}

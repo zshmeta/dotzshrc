@@ -1,0 +1,334 @@
+#!/bin/bash
+
+setbucket() {
+	local BUCKET
+	BUCKET=$1
+	local BUCKIES
+	BUCKIES="$2"
+	if [ -z "$BUCKET" ]; then
+		echo "Usage: setbucket <bucket>"
+		return 1
+	else
+		if [ "$BUCKET" != "minio" ] && [ "$BUCKET" != "teb" ] && [ "$BUCKET" != "jsfs" ] && [ "$BUCKET" != "jcfs" ]; then
+			echo -e "\033[1;31mError: bucket unknown. must be minio or teb\033[0m"
+			return 1
+		fi
+		if ! echo "$BUCKET" >~/.bucket; then
+			echo -e "\033[1;31mError: failed to set bucket\033[0m"
+			return 1
+		else
+			echo -e "\033[1;32;1mBucket set to $BUCKET\033[0m"
+		fi
+	fi
+	if ! echo "$BUCKIES" >>~/.bucket; then
+		echo -e "\033[1;31mError: failed to set bucket\033[0m"
+		return 1
+	else
+		if [ "$BUCKIES" ]; then
+			echo -e "\033[1;32;1mBuckies set to $BUCKIES\033[0m"
+		fi
+	fi
+
+	export BUCKET
+	export BUCKIES
+}
+
+getbucket() {
+	BUCKET=$(awk 'NR==1' "$HOME/.bucket")
+	BUCKIES=$(awk 'NR==2' "$HOME/.bucket")
+	configs="$HOME"/.s3cfg.d/s3cfg.$BUCKET
+
+	export BUCKET
+	export BUCKIES
+	export configs
+}
+
+bucket_args() {
+	# Initialize variables
+	local cmd="$1"
+	shift
+	local src=""
+	local target=""
+	local -a args=()
+	local is_arg=false
+
+	for arg in "$@"; do
+		if [[ $arg == -* ]]; then
+			is_arg=true
+		fi
+
+		if ! $is_arg; then
+			if [[ $cmd == "put" ]] || [[ $cmd == "syncup" ]] || [[ $cmd == "cp" ]] || [[ $cmd == "mv" ]] || [[ $cmd == "setacl" ]] || [[ $cmd == "setpolicy" ]]; then
+				if [[ -z $src ]]; then
+					src="$arg"
+				elif [[ -z $target ]]; then
+					target="$arg"
+				fi
+			elif [[ $cmd == "get" ]] || [[ $cmd == "syncdn" ]] || [[ $cmd == "setacl" ]] || [[ $cmd == "setpolicy" ]] || [[ $cmd == "setver" ]]; then
+				if [[ -z $target ]]; then
+					target="$arg"
+				elif [[ -z $src ]]; then
+					src="$arg"
+				fi
+			else
+				target="$arg"
+			fi
+		else
+			args+=("$arg")
+		fi
+	done
+
+	getbucket
+
+	if [ "$BUCKIES" ]; then
+		target="$BUCKIES/$target"
+	fi
+
+	# Execute the command based on the provided cmd
+	case "$cmd" in
+	"mb")
+		# Print the command message
+		echo -e "\033[1;32;1mBucket: $BUCKET\033[0m  \033[1;32;1m$BUCKIES ✌ 👉\033[0m mb s3://$target"
+		echo "-------------------------------------------------------------------"
+		s3cmd --config "$configs" mb "s3://$target"
+		;;
+	"rb")
+		# Print the command message
+		echo -e "\033[1;32;1mBucket: $BUCKET\033[0m  \033[1;32;1m$BUCKIES ✌ 👉\033[0m rb s3://$target"
+		echo "-------------------------------------------------------------------"
+		s3cmd --config "$configs" rb "s3://$target"
+		;;
+	"ls")
+		# Print the command message
+		echo -e "\033[1;32;1mBucket: $BUCKET\033[0m  \033[1;32;1m$BUCKIES ✌ 👉\033[0m ls s3://$target ${args[*]}"
+		echo "-------------------------------------------------------------------"
+		s3cmd --config "$configs" ls "s3://$target" "${args[@]}"
+		;;
+	"la")
+		# Print the command message
+		echo -e "\033[1;32;1mBucket: $BUCKET\033[0m  \033[1;32;1m$BUCKIES ✌ 👉\033[0m la s3://$target ${args[*]}"
+		echo "-------------------------------------------------------------------"
+		s3cmd --config "$configs" la "s3://$target" "${args[@]}"
+		;;
+	"put")
+		# Print the command message
+		echo -e "\033[1;32;1mBucket: $BUCKET\033[0m  \033[1;32;1m$BUCKIES ✌ 👉\033[0m put  $src s3://$target ${args[*]}"
+		echo "-------------------------------------------------------------------"
+		s3cmd --config "$configs" put "$src" "s3://$target" "${args[@]}"
+		;;
+	"get")
+		# Print the command message
+		echo -e "\033[1;32;1mBucket: $BUCKET\033[0m  \033[1;32;1m$BUCKIES ✌ 👉\033[0m get ${args[*]} s3://$target $src"
+		echo "-------------------------------------------------------------------"
+		s3cmd --config "$configs" get "s3://$target" "$src" "${args[@]}"
+		;;
+
+	"del")
+		# Print the command message
+		echo -e "\033[1;32;1mBucket: $BUCKET\033[0m  \033[1;32;1m$BUCKIES ✌ 👉\033[0m del s3://$target ${args[*]}"
+		echo "-------------------------------------------------------------------"
+		s3cmd --config "$configs" del "s3://$target" "${args[@]}"
+		;;
+	"rm")
+		# Print the command message
+		echo -e "\033[1;32;1mBucket: $BUCKET\033[0m  \033[1;32;1m$BUCKIES ✌ 👉\033[0m rm s3://$target ${args[*]}"
+		echo "-------------------------------------------------------------------"
+		s3cmd --config "$configs" rm "s3://$target" "${args[@]}"
+		;;
+	"syncup")
+		# Print the command message
+		echo -e "\033[1;32;1mBucket: $BUCKET\033[0m  \033[1;32;1m$BUCKIES ✌ 👉\033[0m syncup $src s3://$target ${args[*]}"
+		echo "-------------------------------------------------------------------"
+		s3cmd --config "$configs" sync "$src" "s3://$target" "${args[@]}"
+		;;
+	"syncdn")
+		# Print the command message
+		echo -e "\033[1;32;1mBucket: $BUCKET\033[0m  \033[1;32;1m$BUCKIES ✌ 👉\033[0m syncdown s3://$src $target"
+		echo "-------------------------------------------------------------------"
+		s3cmd --config "$configs" sync "s3://$target" "$src" "${args[@]}"
+		;;
+	"du")
+		# Print the command message
+		echo -e "\033[1;32;1mBucket: $BUCKET\033[0m  \033[1;32;1m$BUCKIES ✌ 👉\033[0m du s3://$target"
+		echo "-------------------------------------------------------------------"
+		s3cmd --config "$configs" du -H "s3://$target"
+		;;
+	"info")
+		# Print the command message
+		echo -e "\033[1;32;1mBucket: $BUCKET\033[0m  \033[1;32;1m$BUCKIES ✌ 👉\033[0m info s3://$target"
+		echo "-------------------------------------------------------------------"
+		s3cmd --config "$configs" info "s3://$target"
+		;;
+	"cp")
+		# Print the command message
+		echo -e "\033[1;32;1mBucket: $BUCKET\033[0m  \033[1;32;1m$BUCKIES ✌ 👉\033[0m cp s3://$src s3://$target"
+		echo "-------------------------------------------------------------------"
+		s3cmd --config "$configs" cp "s3://$src" "s3://$target"
+		;;
+	"mv")
+		# Print the command message
+		echo -e "\033[1;32;1mBucket: $BUCKET\033[0m  \033[1;32;1m$BUCKIES ✌ 👉\033[0m mv s3://$src s3://$target"
+		echo "-------------------------------------------------------------------"
+		s3cmd --config "$configs" mv "s3://$src" "s3://$target"
+		;;
+	"cat")
+		# Print the command message
+		echo -e "\033[1;32;1mBucket: $BUCKET\033[0m  \033[1;32;1m ✌ 👉\033[0m cat s3://$target"
+		echo "-------------------------------------------------------------------"
+		s3cmd --config "$configs" get "s3://$target" - | cat
+		;;
+	"catgz")
+		# Print the command message
+		echo -e "\033[1;32;1mBucket: $BUCKET\033[0m  \033[1;32;1m ✌ 👉\033[0m cat s3://$target"
+		echo "-------------------------------------------------------------------"
+		s3cmd --config "$configs" get "s3://$target" - | gzip -c | cat
+		;;
+	"setacl")
+		if [ -z "$src" ] || [ -z "$target" ]; then
+			echo "Usage: sset <policy> <target>"
+			return 1
+		fi
+		if [ "$src" != "public" ] && [ "$src" != "private" ]; then
+			echo "Error: policy must be public or private"
+			return 1
+		fi
+		# Print the command message
+		echo -e "\033[1;32;1mBucket: $BUCKET\033[0m  \033[1;32;1m$BUCKIES ✌ 👉\033[0m setacl s3://$src --acl-$target ${args[*]}"
+		echo "-------------------------------------------------------------------"
+		s3cmd --config "$configs" setacl "s3://$target" --acl-"$src" "${args[@]}"
+		;;
+	"getacl")
+		# Print the command message
+		echo -e "\033[1;32;1mBucket: $BUCKET\033[0m  \033[1;32;1m$BUCKIES ✌ 👉\033[0m getacl s3://$target"
+		echo "-------------------------------------------------------------------"
+		s3cmd --config "$configs" getacl "s3://$target"
+		;;
+	"setver")
+		if [ "$target" != "enable" ] && [ "$target" != "disable" ]; then
+			echo "Error: versioning must be enable or disable"
+			return 1
+		fi
+		# Print the command message
+		echo -e "\033[1;32;1mBucket: $BUCKET\033[0m  \033[1;32;1m ✌ 👉\033[0m setver s3://$target"
+		echo "-------------------------------------------------------------------"
+		s3cmd --config "$configs" setversioning "s3://$src" --versioning-status="$target"
+		;;
+	"fixbucket")
+		# Print the command message
+		echo -e "\033[1;32;1mBucket: $BUCKET\033[0m  \033[1;31m ✌ 👉\033[0m fixbucket s3://$target"
+		echo "-------------------------------------------------------------------"
+		s3cmd --config "$configs" fixbucket "s3://$target"
+		;;
+
+	*)
+		echo "Error: Invalid command"
+		return 1
+		;;
+	esac
+
+}
+
+# Create Bucket
+s3mb() {
+	bucket_args "mb" "$@"
+}
+
+# Remove Bucket
+s3rb() {
+	bucket_args "rb" "$@"
+}
+
+# List Bucket
+s3ls() {
+	bucket_args "ls" "$@"
+}
+
+# List All Bucket
+s3la() {
+	bucket_args "la" "$@"
+}
+
+# Put Object
+s3put() {
+	bucket_args "put" "$@"
+}
+
+# Get Object
+s3get() {
+	bucket_args "get" "$@"
+}
+
+# Delete Object
+s3del() {
+	bucket_args "del" "$@"
+}
+
+# Remove Object
+s3rm() {
+	bucket_args "rm" "$@"
+}
+
+# Sync Up
+s3syncup() {
+	bucket_args "syncup" "$@"
+}
+
+# Sync Down
+s3syncdn() {
+	bucket_args "syncdn" "$@"
+}
+
+# Disk Usage
+s3du() {
+	bucket_args "du" "$@"
+}
+
+# Info
+s3info() {
+	bucket_args "info" "$@"
+}
+
+# Move
+s3mv() {
+	bucket_args "mv" "$@"
+}
+
+# Set ACL
+s3setacl() {
+	bucket_args "setacl" "$@"
+}
+
+# Get ACL
+s3getacl() {
+	bucket_args "getacl" "$@"
+}
+
+# Set Versioning
+s3setver() {
+	bucket_args "setver" "$@"
+}
+
+# Fix Bucket
+s3fixbucket() {
+	bucket_args "fixbucket" "$@"
+}
+
+s3cat() {
+	bucket_args cat "$@"
+}
+
+s3catgz() {
+	bucket_args catgz "$@"
+}
+
+sputall() {
+	stb minio public
+	sput "$@"
+	stb teb public.teb
+	sput "$@"
+	stb teb teb
+	sput "$@"
+}
+
+alias stb="setbucket"
+alias gtb="getbucket"

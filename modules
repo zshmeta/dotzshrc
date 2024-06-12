@@ -1,0 +1,44 @@
+#!/usr/bin/env zsh
+
+
+# The following lines were added by compinstall
+zstyle ':completion:*' completer _expand _complete _ignored _match _approximate _prefix
+zstyle ':completion:*' expand prefix suffix
+zstyle ':completion:*' file-sort access
+zstyle ':completion:*' format 'complete with %d'
+zstyle ':completion:*' group-name ''
+zstyle ':completion:*' list-suffixes true
+zstyle ':completion:*' max-errors 2
+zstyle ':completion:*' preserve-prefix '//[^/]##/'
+zstyle ':completion:*' prompt 'did you mean...'
+zstyle ':completion:*' squeeze-slashes true
+zstyle ':completion:*' use-compctl true
+zstyle ':completion:*' verbose true
+zstyle ':compinstall' 'filename' '/home/zshmeta/.zshcompfig'
+# Use modern completion system
+zstyle ':completion:*' menu select
+zstyle ':completion:*' use-comp-system 'true'
+# Group matches and describe.
+zstyle ':completion:*' list-colors 'ma=48;2;76;86;106'
+zstyle ':completion:*:*:*:*:*' menu select
+zstyle ':completion:*:matches' group 'yes'
+zstyle ':completion:*:options' description 'yes'
+zstyle ':completion:*:descriptions' format '%F{yellow}-- %d --%f'
+# Colorize completions.
+zstyle ':completion:*' list-colors ${(s.:.)LS_COLORS}
+
+
+# Define widget for menu-select
+
+zmodload -i zsh/complist
+_have() {
+  unset -f have
+  (( $+commands[\$1] ))
+}
+
+_have() {
+  if typeset -f have > /dev/null; then
+    unset -f have
+  fi
+  (( $+commands[$1] ))
+}

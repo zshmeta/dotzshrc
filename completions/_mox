@@ -27,7 +27,7 @@ _mox() {
         _describe 'command' commands
         ;;
     subcommand)
-        case $words[2] in
+        case ${words[2]} in
         queue)
             options=(
                 'list:List mail queue'
@@ -50,7 +50,7 @@ _mox() {
         esac
         ;;
     option-or-argument)
-        case $words[2] in
+        case ${words[2]} in
         quickstart)
             _arguments '1: :->option' \
                 '--existing-webserver[Use existing webserver]' \
@@ -63,6 +63,5 @@ _mox() {
     esac
 }
 
-_mox
-
 compdef _mox mox
+

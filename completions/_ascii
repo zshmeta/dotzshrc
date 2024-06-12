@@ -1,0 +1,205 @@
+# compdef 
+
+_cfonts(){
+
+local -a commands
+commands=(
+'--version:Use to display the version of cfonts'
+'--help:Use to display this help'
+'--font:Use to define the font face'
+'--colors:Use to define the font color'
+'--background:Use to define background color'
+'--align:Use to align your text output'
+'--letter-spacing:Use to define your letter spacing(0-5)'
+'--line-height:Use to define your line height(0-10)'
+'--spaceless:Use to disable the padding around your output'
+'--max-length:Use to define the amount of maximum characters per line'
+'--gradient:Use to define a start and end color of a gradient'
+'--independent-gradient:Use to define that a gradient is applied independently for each line'
+'--transition-gradient:Use to define that a gradient is a transition between the colors'
+'--env:Use to define what env you run CFonts in.'
+'--debug:Use to enable debug mode'
+'--debug-level:Use to define the debug level. The higher, the less debug infos'
+)
+
+local a fonts
+ fonts=(
+    'console'
+    'block'
+    'simpleBlock'
+    'simple'
+    '3d'
+    'simple3d'
+    'chrome'
+    'huge'
+    'shade'
+    'slick'
+    'grid'
+    'pallet'
+    'tiny'
+     
+ )
+
+ local -a colors 
+    colors=(
+    'black'
+    'red'
+    'green'
+    'yellow'
+    'blue'
+    'magenta'
+    'cyan'
+    'white'
+    'gray'
+    'redBright'
+    'greenBright'
+    'yellowBright'
+    'blueBright'
+    'magentaBright'
+    'cyanBright'
+    'whiteBright'
+    'candy'
+    )
+
+
+local -a background
+    background=(
+        'transparent'
+        'black'
+        'red'
+        'green'
+        'yellow'
+        'blue'
+        'magenta'
+        'cyan'
+        'white'
+        'gray'
+        'redBright'
+        'greenBright'
+        'yellowBright'
+        'blueBright'
+        'magentaBright'
+        'cyanBright'
+        'whiteBright'
+    )
+
+local -a align
+    align=(
+        'left'
+        'center'
+        'right'
+        'top'
+        'bottom'
+    )
+
+local -a gradient
+    gradient=(
+        'red'
+        'green'
+        'yellow'
+        'blue'
+        'magenta'
+        'cyan'
+        'white'
+        'gray'
+        'redBright'
+        'greenBright'
+        'yellowBright'
+        'blueBright'
+        'magentaBright'
+        'cyanBright'
+        'whiteBright'
+    )
+
+local -a env
+    env=(
+        'browser'
+        'cli'
+    )
+
+local -a debug
+    debug=(
+        'true'
+        'false'
+    )
+
+local -a debugLevel
+    debugLevel=(
+        '0'
+        '1'
+        '2'
+        '3'
+        '4'
+        '5'
+        '6'
+        '7'
+        '8'
+        '9'
+    )
+
+    if [[ ${words[index]} == --font ]]; then
+        _describe 'cfonts fonts' fonts
+    elif [[ ${words[index]} == --colors ]]; then
+        _describe 'cfonts colors' colors
+    elif [[ ${words[index]} == --background ]]; then
+        _describe 'cfonts background' background
+    elif [[ ${words[index]} == --align ]]; then
+        _describe 'cfonts align' align
+    elif [[ ${words[index]} == --gradient ]]; then
+        _describe 'cfonts gradient' gradient
+    elif [[ ${words[index]} == --env ]]; then
+        _describe 'cfonts env' env
+    elif [[ ${words[index]} == --debug ]]; then
+        _describe 'cfonts debug' debug
+    elif [[ ${words[index]} == --debug-level ]]; then
+        _describe 'cfonts debugLevel' debugLevel
+    else 
+        _describe 'cfonts commands' commands
+    fi
+
+
+}
+
+
+compdef _cfonts cfonts
+
+
+
+_echoascii(){   
+
+local -a commands
+commands=(
+    '--row:prints each "" enclosed arg in a row'
+    '--font:pick a font to use'
+)
+
+local -a fonts
+fonts=(
+    '3D Diagonal'
+    'Alpha'
+    'Big Money-ne'
+    'Big Money-nw'
+    'BlurVision ASCII'
+    'Sub-Zero'
+    '3D-ASCII'
+    'ANSI Shadow'
+    '3-D'
+    'Banner3-D'
+    'Banner3'
+    'Banner4'
+    'Broadway'
+    'Larry 3D'
+    'Reverse'
+    'Roman'
+)
+
+    if [[ ${words[index]} == --font ]]; then
+        _describe 'echoascii fonts' fonts
+    else 
+        _describe 'echoascii commands' commands
+    fi
+
+}
+
+
+compdef _echoascii echoascii

@@ -1,0 +1,9 @@
+
+
+# cr-nitro
+
+cr-nitro (){
+       
+       bunx giget@latest nitro $1 --install
+       
+}

@@ -1,0 +1,74 @@
+#!/bin/bash
+#compdef pet
+
+_pet () {
+    local -a commands
+    commands=(
+    'configure:Edit config file'
+    'edit:Edit snippet file'
+    'exec:Run the selected commands'
+    'help:Help about any command'
+    'list:Show all snippets'
+    'new:Create a new snippet'
+    'search:Search snippets'
+    'sync:Sync snippets'
+    'version:Print the version number'
+    '--config:config file (default is ~/.config/pet/config.toml)'
+    '--debug:debug mode'
+    '--help:show this help message'
+    
+    )
+
+
+            local -a execopt=(
+                '--help:gethelp on this command' 
+                '--color:Enable colorized output (only fzf)'
+                '--query:Initial value for query'
+            )
+            local -a listopt=(
+                '--help:gethelp on this command' 
+                '--oneline:Display snippets in one line'
+            )
+            local -a newopt=(
+                '--help:gethelp on this command' 
+                '--tag:Display tag prompt (delimiter: space)'
+            )
+            local -a searchopt=(
+                '--help:gethelp on this command' 
+                '--color:Enable colorized output (only fzf)'
+                '--delimiter:Use delim as the command delimiter character (default "; ")'
+                '--query:Initial value for query'
+            )
+            local -a syncopt=(
+                '--help:gethelp on this command' 
+                '--force:Force to sync'
+                '--upload:Upload snippets to gist'
+            )
+
+
+
+if (( CURRENT == 2 )); then
+    _describe -V 'command' commands
+else
+case ${words[2]} in
+    (exec)
+        _describe 'exec options' execopt
+        ;;
+    (list)
+        _describe 'list options' listopt
+        ;;
+    (new)
+        _describe 'new options' newopt
+        ;;
+    (search)
+        _describe 'search options' searchopt
+        ;;
+    (sync)
+        _describe 'sync options' syncopt
+        ;;
+esac
+fi
+}
+
+compdef _pet pet
+

@@ -1,0 +1,61 @@
+
+_webtop_comp(){
+    local -a commands
+    local -a bases
+    local -a desktops
+    local -a container_ids
+
+    commands=(
+      "run:Start a new instance"
+      "ls:List existing instances"
+      "stop:Stop an existing instance"
+      "rm:Delete an existing instance"
+      "purge:Remove all existing instances, images and volumes"
+    )
+
+    bases=(
+      "ubuntu:Ubuntu"
+      "fedora:Fedora"
+      "arch:Arch"
+      "debian:Debian"
+      "alpine:Alpine"
+    )
+
+    desktops=(
+      "xfce:XFCE"
+      "kde:KDE"
+      "mate:MATE"
+      "i3:i3"
+      "openbox:Openbox"
+      "icewm:IceWM"
+    )
+
+        _get_webtops() {
+        mapfile -t webtops < <(podman ps -a -f name=webtop --format "{{.ID}} {{.Names}}")
+        }
+
+    if (( CURRENT == 2 )); then
+      _describe -V 'Run or manage desktops' commands
+    elif (( CURRENT == 3 )); then
+      case ${words[2]} in
+        run)
+          _describe -V 'Distro to use' bases
+          ;;
+        stop|rm)
+          _get_webtops
+          for webtop in "${webtops[@]}"; do
+              compadd "$webtop"
+          done
+          ;;
+       esac
+    elif (( CURRENT == 4 )); then
+      case ${words[2]} in
+        run)
+          _describe 'Chose a Desktop' desktops
+          ;;
+      esac
+    fi
+}
+
+
+compdef _webtop_comp webtop

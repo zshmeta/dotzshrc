@@ -1,5 +1,17 @@
 #!/bin/bash
 
+# Colors for the terminal
+
+bbred="\033[1;91m"
+bbgreen="\033[1;92m"
+bbyellow="\033[1;93m"
+bbblue="\033[1;94m"
+bbcyan="\033[1;96m"
+bbpink="\033[1;95m"
+bbwhite="\033[1;97m"
+bbblack="\033[1;90m"
+clearcolor="\033[0m"
+
 # Includes
 
 # Get the directory of the current script
@@ -7,85 +19,82 @@ DIR="$(dirname "$0")"
 
 # Include all function files in the functions.d/ directory
 for file in "$DIR/functions.d/"*; do
-  if [ -f "$file" ]; then
-    # shellcheck source=/dev/null
-      source "$file"
-  fi
+	if [ -f "$file" ]; then
+		# shellcheck source=/dev/null
+		source "$file"
+	fi
 done
-
-
 
 # ==============================
 # Section 1: File Operations
 # ==============================
 
 # Function to extract various types of compressed files
-tarx () {
-  if [ -f "$1" ]; then
-    case "$1" in
-      *.tar.bz2) tar xvjf "$1" ;;
-      *.tar.gz) tar xvzf "$1" ;;
-      *.bz2) bunzip2 "$1" ;;
-      *.rar) unrar x "$1" ;;
-      *.gz) gunzip "$1" ;;
-      *.tar) tar xvf "$1" ;;
-      *.tbz2) tar xvjf "$1" ;;
-      *.tgz) tar xvzf "$1" ;;
-      *.zip) unzip "$1" ;;
-      *.Z) uncompress "$1" ;;
-      *.7z) 7z x "$1" ;;
-      *) echo "$1 cannot be extracted via extract()" ;;
-    esac
-  else
-    echo "$1 is not a valid file"
-  fi
+tarx() {
+	if [ -f "$1" ]; then
+		case "$1" in
+		*.tar.bz2) tar xvjf "$1" ;;
+		*.tar.gz) tar xvzf "$1" ;;
+		*.bz2) bunzip2 "$1" ;;
+		*.rar) unrar x "$1" ;;
+		*.gz) gunzip "$1" ;;
+		*.tar) tar xvf "$1" ;;
+		*.tbz2) tar xvjf "$1" ;;
+		*.tgz) tar xvzf "$1" || tar xvf "$1" ;;
+		*.zip) unzip "$1" ;;
+		*.Z) uncompress "$1" ;;
+		*.7z) 7z x "$1" ;;
+		*) echo "${bbblue}$1 ${bbred}cannot be extracted via extract()${clearcolor}" ;;
+		esac
+	else
+		echo "${bbblue}$1 ${bbred}is not a valid file${clearcolor}"
+	fi
 }
 zle -N tarx
 #alias tarx="tar -xzvf"
 #alias tarz="tar -xvf"
 tarc() {
-  if [[ "$1" == *.tgz ]] || [[ "$1" == *.tar.gz ]]; then
-    archive="$1"
-    tar --owner=0 --group=0 --exclude "$archive" --checkpoint=10 --full-time --totals -czRvf "$@"
-  else
-    echo "need to specify a file  name *.tgz or *.tar.gz archive to "
-  fi
+	if [[ "$1" == *.tgz ]] || [[ "$1" == *.tar.gz ]]; then
+		archive="$1"
+		tar --owner=0 --group=0 --exclude "$archive" --checkpoint=10 --full-time --totals -czRvf "$@"
+	else
+		echo "${bbred}need to specify a file  name ${bbblue}*.tgz ${bbred}or ${bbblue}*.tar.gz archive to "
+	fi
 }
 # Function to extract compressed files and create a directory based on the filename if there are multiple files in the archive
 tarxx() {
-  local l=""
-  l=$(tar tf "$1")
-  # shellcheck disable=SC2126
-  if [ "$(echo "$l" | wc -l)" -eq "$(echo "$l" | grep "$(echo "$l" | head -n1)" | wc -l)" ]; then 
-    tar xf "$1"
-  else 
-    mkdir "${1%.t(ar.gz||ar.bz2||gz||bz||ar)}" && tar xvf "$1" -C "${1%.t(ar.gz||ar.bz2||gz||bz||ar)}"
-  fi
+	local l=""
+	l=$(tar tf "$1")
+	# shellcheck disable=SC2126
+	if [ "$(echo "$l" | wc -l)" -eq "$(echo "$l" | grep "$(echo "$l" | head -n1)" | wc -l)" ]; then
+		tar xf "$1"
+	else
+		mkdir "${1%.t(ar.gz||ar.bz2||gz||bz||ar)}" && tar xvf "$1" -C "${1%.t(ar.gz||ar.bz2||gz||bz||ar)}"
+	fi
 }
 
 # Function to create a compressed tar archive of a directory
-tarcc () {
-  local name="$1"
-  if [ -n "$name" ]; then
-    tar cvjf "$1".tar.bz2 "$1"
-  fi
+tarcc() {
+	local name="$1"
+	if [ -n "$name" ]; then
+		tar cvjf "$1".tar.bz2 "$1"
+	fi
 }
 
-
 # Function to backup a file by appending the current date to its name
-buf () {
-  local oldname=""
-  local datepart=""
-  local firstpart=""
-  local newname=""
-  oldname="$1"
-  if [ -n "$oldname" ]; then
-    datepart=$(date +%Y-%m-%d)
-    firstpart=$(echo "$oldname" | cut -d "." -f 1)
-    # shellcheck disable=SC2001
-    newname=$(echo "$oldname" | sed s/"$firstpart"/"$firstpart"."$datepart"/)
-    cp -R "${oldname}" "${newname}"
-  fi
+buf() {
+	local oldname=""
+	local datepart=""
+	local firstpart=""
+	local newname=""
+	oldname="$1"
+	if [ -n "$oldname" ]; then
+		datepart=$(date +%Y-%m-%d)
+		firstpart=$(echo "$oldname" | cut -d "." -f 1)
+		# shellcheck disable=SC2001
+		newname=$(echo "$oldname" | sed s/"$firstpart"/"$firstpart"."$datepart"/)
+		cp -R "${oldname}" "${newname}"
+	fi
 }
 
 # ==============================
@@ -93,18 +102,18 @@ buf () {
 # ==============================
 
 # Function to list the newest files in the current directory and its subdirectories
-newest () { 
-  find . -type f -printf '%TY-%Tm-%Td %TT %p\n' | grep -v cache | grep -v ".hg" | grep -v ".git" | sort -r | less
+newest() {
+	find . -type f -printf '%TY-%Tm-%Td %TT %p\n' | grep -v cache | grep -v ".hg" | grep -v ".git" | sort -r | less
 }
 
 # Function to display a clock in the top right corner of the console
-clock () {
-  while sleep 1; do
-    tput sc
-    tput cup 0 $(($(tput cols)-29))
-    date
-    tput rc
-  done &
+clock() {
+	while sleep 1; do
+		tput sc
+		tput cup 0 $(($(tput cols) - 29))
+		date
+		tput rc
+	done &
 }
 
 # ==============================
@@ -113,14 +122,14 @@ clock () {
 
 # Function to create a new executable script file with a shebang line, edit the script, and make it executable
 shebang() {
-  local i=""
-  i=$(which "$1")
-  if [ -n "$i" ]; then
-    printf '#!/usr/bin/env %s\n\n' "$1" > "$2" && chmod 755 "$2" && vim + "$2" && chmod 755 "$2"
-  else
-    echo "'which' could not find $1, is it in your \$PATH?"
-  fi
-  rehash
+	local i=""
+	i=$(which "$1")
+	if [ -n "$i" ]; then
+		printf '#!/usr/bin/env %s\n\n' "$1" >"$2" && chmod 755 "$2" && vim + "$2" && chmod 755 "$2"
+	else
+		echo "'which' could not find $1, is it in your \$PATH?"
+	fi
+	rehash
 }
 
 # ==============================
@@ -129,98 +138,114 @@ shebang() {
 
 # Function to query Wikipedia via console over DNS
 wp() {
-  dig +short txt "${1}".wp.dg.cx
+	dig +short txt "${1}".wp.dg.cx
 }
 
 # Function to translate text using Google Language Tools
 translate() {
-  wget -qO- "http://ajax.googleapis.com/ajax/services/language/translate?v=1.0&q=$1&langpair=$2|${3:-en}" | sed 's/.*"translatedText":"\([^"]*\)".*}/\1\n/'
+	wget -qO- "http://ajax.googleapis.com/ajax/services/language/translate?v=1.0&q=$1&langpair=$2|${3:-en}" | sed 's/.*"translatedText":"\([^"]*\)".*}/\1\n/'
 }
 
 # ==============================
 # Section 6: Command Line Utilities
 # ==============================
 
+psh() {
+	PSSHDIR="$HOME/.clusterssh"
+	local cmd=""
+	local hosts=""
+	if ! cat "$PSSHDIR"/"$1"; then
+		echo "${bbblue}usage pssh <host> <command>"
+		return 1
+	else
+		hosts="$1"
+		shift
+		cmd="$@" # Get the command to run
 
+		pssh -h $hosts -x "-tt" -v -i "$@"
+	fi
+}
+
+# afunction that cats a file and executes it rmotely via ssh on a remote host takes arg as "file" "host"
+
+ssrun() {
+	local file="$1"
+	local host="$2"
+	cat "$file" | ssh "$host" bash
+}
 
 # ==============================
 # Section 7: Miscellaneous
 # ==============================
 # Define  color codes
 
-T_GREEN='\033[0;32m' # Green
+T_GREEN='\033[0;32m'  # Green
 T_YELLOW='\033[0;33m' # Yellow
-T_RED='\033[0;31m' # Red
-T_RESET='\033[0m' # Text Reset
+T_RED='\033[0;31m'    # Red
+T_RESET='\033[0m'     # Text Reset
 
 # Function to reveal executed alias
 alias_for() {
-  local search=""
-  local found=""
-  search=${1}
-  found="$( alias "$search" 2>/dev/null )"
-  if [[ -n $found ]]; then
-    found=${found//\\//} # Replace backslash with slash
-    found=${found%\'} # Remove end single quote
-    found=${found#"$search="} # Remove alias name
-    found=${found#"'"} # Remove first single quote
-    echo "${found} ${2}" | xargs # Return found value (with parameters
-  else
-    echo ""
-  fi
+	local search=""
+	local found=""
+	search=${1}
+	found="$(alias "$search" 2>/dev/null)"
+	if [[ -n $found ]]; then
+		found=${found//\\//}         # Replace backslash with slash
+		found=${found%\'}            # Remove end single quote
+		found=${found#"$search="}    # Remove alias name
+		found=${found#"'"}           # Remove first single quote
+		echo "${found} ${2}" | xargs # Return found value (with parameters
+	else
+		echo ""
+	fi
 }
 
-
-expand_command_line () {
-  local first=""
-  local rest=""
-	first=$(echo "$1" | awk '{print $1;}') 
+expand_command_line() {
+	local first=""
+	local rest=""
+	first=$(echo "$1" | awk '{print $1;}')
 	# shellcheck disable=SC2116
-	rest=$(echo "${1//$first/}") 
-	if [[ -n "${first//-//}" ]]
-	then
-    local cmd_alias=""
-		cmd_alias="$(alias_for "${first}" "${rest:1}")" 
-		if [[ -n $cmd_alias ]] && [[ "${cmd_alias:0:1}" != "." ]]
-		then
-			echo -e "${T_GREEN}Command: ${T_YELLOW}${cmd_alias}${T_RESET}"
+	rest=$(echo "${1//$first/}")
+	if [[ -n "${first//-//}" ]]; then
+		local cmd_alias=""
+		cmd_alias="$(alias_for "${first}" "${rest:1}")"
+		if [[ -n $cmd_alias ]] && [[ "${cmd_alias:0:1}" != "." ]]; then
+			echo -e "${bbcyan}Command: ${bbgreen}${cmd_alias}${clearc}"
 		fi
 	fi
 }
 
-
-sid () {
-        if [[ $2 == "-d" || $2 == "--delete" || $2 == "-del" || $2 == "--del" ]]
-        then
-                sed -i "/^$1/d" "$3"
-        else
-                sed -i "s/$1/$2/g" "$3"
-        fi
+sid() {
+	if [[ $2 == "-d" || $2 == "--delete" || $2 == "-del" || $2 == "--del" ]]; then
+		sed -i "/^$1/d" "$3"
+	else
+		sed -i "s/$1/$2/g" "$3"
+	fi
 }
 
-joke(){
-  curl -s https://icanhazdadjoke.com/
+joke() {
+	curl -s https://icanhazdadjoke.com/
 }
 
-gifit(){
-curl gif.xyzzy.run/"$1"
+gifit() {
+	curl gif.xyzzy.run/"$1"
 }
 
-quote(){
-  curl -s https://api.quotable.io/random | jq -r '.content'
+quote() {
+	curl -s https://api.quotable.io/random | jq -r '.content'
 }
 
-weth(){
-  access_key=f8bc25c9f0ecef3a074880cf085e7010
-   curl -s "http://api.weatherstack.com/current?$access_key=f8bc25c9f0ecef3a074880cf085e7010"
+weth() {
+	curl -sSL wttr.in/2
 }
 
-s3fsmount(){
-    local bucket="$1"
-    local mount="$2"
-    echo "$T_RED Mounting $bucket to $mount $T_RESET"
+s3fsmount() {
+	local bucket="$1"
+	local mount="$2"
+	echo "${bbblue}Mounting ${bbcyan}$bucket to ${bbyellow}$mount ${clearcolor}"
 
-    s3fs "$bucket" "$mount" -o passwd_file="${HOME}"/.passwd-s3fs -o url=https://minio.zshmeta.dev/ -o use_path_request_style
+	s3fs "$bucket" "$mount" -o passwd_file="${HOME}"/.passwd-s3fs -o url=https://minio.zshmeta.dev/ -o use_path_request_style
 
 }
 
@@ -228,59 +253,309 @@ facts() {
 	curl -Ss https://uselessfacts.jsph.pl/api/v2/facts/random\?language=en | jq '.text'
 }
 
+sherget() {
+	local user="$1"
+	if ! docker run --rm -t -v "$PWD/results:/opt/sherlock/results" sherlock -o /opt/sherlock/results/text.txt "$user"; then
+		podman run --rm -t -v "$PWD/results:/opt/sherlock/results" sherlock -o /opt/sherlock/results/text.txt "$user"
+	fi
+}
 
-sherget(){
-     local user="$1"
-     if ! docker run --rm -t -v "$PWD/results:/opt/sherlock/results" sherlock -o /opt/sherlock/results/text.txt "$user"; then
-          podman run --rm -t -v "$PWD/results:/opt/sherlock/results" sherlock -o /opt/sherlock/results/text.txt "$user"
-     fi
-  }
+shersh() {
+	local user="$1"
+	if ! docker run --rm -t sherlock "$user"; then
+		podman run --rm -t sherlock "$user"
+	fi
+}
 
-  shersh(){
-    local user="$1"
-    if ! docker run --rm -t sherlock "$user"; then
-       podman run --rm -t sherlock "$user"
-    fi
-  }
+topmem() {
+	ps -eo pid,comm,%mem --sort=-%mem | head -n 14
+}
 
+topcpu() {
+	ps -eo pid,comm,%cpu --sort=-%cpu | head -n 14
+}
 
+# prints if disk size vs disk usage
+topdisks() {
+	df -h
+}
 
-  topmem(){
-    ps -eo pid,comm,%mem --sort=-%mem | head -n 14
-  }
+# prints the 13 biggest files in the home directory
+topfiles() {
+	if [ -n "$1" ]; then
+		sudo find "$1" -type f -exec du -h {} + | sort -rh | head -n 13
+	else
+		sudo find ~ -type f -exec du -h {} + | sort -rh | head -n 13
+	fi
+}
 
-  topcpu(){
-    ps -eo pid,comm,%cpu --sort=-%cpu | head -n 14
-  }
+topio() {
+	iotop -o
+}
 
-  # prints if disk size vs disk usage
-  topdisks(){
-    df -h
-  }
+topdisk() {
+	iostat -d -x 1 2
+}
 
-  # prints the 13 biggest files in the home directory
- topfiles(){
-    if [ -n "$1" ]; then
-      sudo find "$1" -type f -exec du -h {} + | sort -rh | head -n 13
-    else
-      sudo find ~ -type f -exec du -h {} + | sort -rh | head -n 13
-    fi
-  }
+topnet() {
+	ifstat -t -n -w
+}
 
+# Function to save snippets to $HOME/.zshrc.d/snippets directory
 
-  topio(){
-    iotop -o
-  }
+snip() {
+	local snippet=""
+	local name=""
+	local file=""
+	name="$1"
+	shift
+	snippet="$*"
+	snipdir="$HOME/.zshrc.d/snippets/"
+	snipfile="$HOME/.zshrc.d/snippets/$name"
+	sync_conf="$HOME/.zshrc.d/snippets/.sync.conf"
+	local source="""
+		for snips in $snipdir/*; do
+		      source $snips
+	    done
+	"""
+	if [ ! -d "$snipdir" ]; then
+		mkdir -p "$snipdir"
+	fi
+	if [ "$name" = "help" ] || [ "$name" = "" ]; then
+		echo "${bbgreen}---------------------------------------------${clearcolor}"
+		echo ""
+		echo "${bbgreen}Usage: ${bbyellow}snip ${bbcyan}<name> <snippet>${clearcolor}"
+		echo "${bbgreen}         ${bbcyan}edit${bbyellow}: edit snippets"
+		echo "${bbgreen}Options: ${bbcyan}list, ls${bbyellow}: list all snippets"
+		echo "${bbgreen}Options: ${bbcyan}show${bbyellow}: show all snippets"
+		echo "${bbgreen}Options: ${bbcyan}show <snippet>${bbyellow}: show specified snippets"
+		echo "${bbgreen}         ${bbcyan}rm, del${bbyellow}: delete snippets${clearcolor}"
+		echo ""
+		echo "${bbgreen}---------------------------------------------${clearcolor}"
+		$source
+		return 1
+	fi
+	if [ "$name" = "list" ] || [ "$name" = "ls" ]; then
+		echo " "
+		echo ""
+		echo "${bbyellow}Listing snippets${clearcolor}"
+		(
+			cd "$snipdir" || return
+			for snipp in *; do
+				echo "${bbcyan}---------------------------------------------${clearcolor}"
+				lsd --date=relative --header --human-readable --blocks=name,date --icon-theme=unicode "$snipp"
+				echo ""
+			done
+		)
+		echo "${bbgreen}---------------------------------------------${clearcolor}"
+		echo "$(\ls "$snipdir" | wc -l) snippets saved"
+		return 0
+	fi
+	if [ "$name" = "show" ] || [ "$name" = "print" ]; then
+		echo "${bbgreen}---------------------------------------------${clearcolor}"
+		echo ""
+		echo "${bbgreen}Listing snippets${clearcolor}"
+		(
+			cd "$snipdir" || return
+			for snipp in *; do
+				lsd --date=relative --header --human-readable --blocks=name,date --icon=always "$snipp"
+				echo "${bbgreen}---------------------------------------------${clearcolor}"
+				echo ""
+				grep "     " "$snipp"
+				echo ""
+				echo "${bbgreen}---------------------------------------------${clearcolor}"
+			done
+		)
+		echo "found $(\ls "$snipdir" | wc -l) snippets"
+		echo "${bbgreen}---------------------------------------------${clearcolor}"
+		return 1
+	fi
 
-  topdisk(){
-    iostat -d -x 1 2
-  }
+	if [ "$name" = "edit" ]; then
+		echo "${bbgreen}---------------------------------------------${clearcolor}"
+		echo ""
+		echo "${bbgreen}Editing snippets${clearcolor}"
+		echo ""
+		echo "${bbgreen}---------------------------------------------${clearcolor}"
+		$EDITOR "$snipdir/$snippet"
+		$source
+		return 1
+	fi
+	if [ "$name" = "rm" ] || [ "$name" = "del" ]; then
+		echo "Are you sure you want to delete $snippet? [y/N] "
+		read -r response
+		if [[ "$response" =~ ^([yY][eE][sS]|[yY])+$ ]]; then
+			echo "${bbgreen}Deleting snippets${clearcolor}"
+			echo "${bbgreen}---------------------------------------------${clearcolor}"
+			echo ""
+			echo ""
+			echo "${bbgreen}---------------------------------------------${clearcolor}"
+			rm -f "$snipdir/$snippet"
+			echo "${bbyellow}Snippet ${bbcyan}$snippet ${bbyellow}deleted${clearcolor}"
+		fi
+		$source
+		return 1
+	fi
+	if [ "$name" = "sync" ]; then
+		# shellcheck disable=SC1090
+		source "$sync_conf"
 
-  topnet(){
-    ifstat -t -n -w
-  }
+		if [ -z "$S3_ACCESS_KEY" ] || [ -z "$S3_SECRET_KEY" ] || [ -z "$ENDPOINT" ] || [ -z "$BUCKET_NAME" ]; then
+			echo -n "${bbblue}Enter your S3 Access Key ID: ${clearcolor}"
+			read -r access_key
+			echo -n "${bbblue}Enter your S3 Secret Access Key: ${clearcolor}"
+			read -r secret_key
+			echo -n "${bbblue}Enter your S3 endpoint (full url with https://): ${clearcolor}"
+			read -r endpoint
+			echo -n "${bbblue}Enter your S3 bucket name: ${clearcolor}"
+			read -r bucket_name
+			echo "S3_ACCESS_KEY=$access_key" >"$sync_conf"
+			# shellcheck disable=SC2129
+			echo "S3_SECRET_KEY=$secret_key" >>"$sync_conf"
+			echo "ENDPOINT=$endpoint" >>"$sync_conf"
+			echo "BUCKET_NAME=$bucket_name" >>"$sync_conf"
+			if command -v mc >/dev/null 2>&1; then
+				mc alias set snipbucket "$ENDPOINT" "$S3_ACCESS_KEY" "$S3_SECRET_KEY"
+				mc anonymous set public snipbucket/"$BUCKET_NAME"
+			else
+				echo "mc not installed, running in docker"
+				docker run -it --rm minio/mc mc alias set snipbucket "$ENDPOINT" "$S3_ACCESS_KEY" "$S3_SECRET_KEY"
+				docker run -it --rm minio/mc mc anonymous set public snipbucket/"$BUCKET_NAME"
+			fi
+			$source
+		fi
 
+		if command -v mc >/dev/null 2>&1; then
+			for snipp in "$snipdir"/*; do
+				mc cp "$snipp" "snipbucket/$BUCKET_NAME"
+			done
+		else
+			echo "mc not installed, running in docker"
+			for snipp in $(basename "$snipdir"/*); do
+				docker run -it --rm -v "$snipdir":/data minio/mc mc cp /data/"$snipp" "snipbucket/$BUCKET_NAME"
+			done
+		fi
+		echo "Snippets synced to $BUCKET_NAME"
+		return 0
+	fi
+	if [ -f "$snipfile" ]; then
+		echo "${bbyellow}Snippet ${bbcyan}$name ${bbblue}exists${clearcolor}"
+		echo ""
+		echo "${bbgreen}---------------------------------------------${clearcolor}"
+		echo ""
+		cat "$snipfile"
+		echo ""
+		echo "${bbgreen}---------------------------------------------${clearcolor}"
+		echo ""
+		echo "${bbgreen}Do you want to overwrite it? ${bbred}y/n${clearcolor}"
+		read -r " [y/n]    " answer
+		if [ "$answer" = "y" ]; then
+			echo "${bbgreen}Overwriting ${bbcyan}$file${clearcolor}"
+		else
+			echo "${bbgreen}Exiting${clearcolor}"
+			return 1
+		fi
+	else
+		echo "${bbgreen}Creating ${bbcyan}$file${clearcolor}"
+	fi
+	if [ -n "$snippet" ]; then
+		echo '#!/bin/bash' >"$snipfile"
+		echo "" >>"$snipfile"
+		echo "" >>"$snipfile"
+		echo "# $name" >>"$snipfile"
+		echo "" >>"$snipfile"
+		echo "$name (){" >>"$snipfile"
+		echo "       " >>"$snipfile"
+		echo "       $snippet" >>"$snipfile"
+		echo "       " >>"$snipfile"
+		echo "}" >>"$snipfile"
+		chmod 755 "$snipfile"
+		echo "${bbgreen}---------------------------------------------${clearcolor}"
+		echo ""
+		cat "$snipfile"
+		echo ""
+		echo "${bbgreen}---------------------------------------------${clearcolor}"
+		echo ""
+		echo "${bbgreen}Snippet ${bbcyan}$name ${bbgreen}created${clearcolor}"
+		$source
+	else
+		echo "${bbred}No snippet provided${clearcolor}"
+		echo "${bbyellow}Usage: snip <name> <snippet>${clearcolor}"
+	fi
 
+}
 
+tim() {
+	# Capture the start time in nanoseconds
+	local start_time=$(date +%s%N)
 
+	# Run the command passed as arguments
+	"$@"
 
+	# Capture the end time in nanoseconds
+	local end_time=$(date +%s%N)
+
+	# Calculate the elapsed time in milliseconds
+	local elapsed_time=$(((end_time - start_time) / 1000000))
+	local seconds=$((elapsed_time / 1000))
+	local milliseconds=$((elapsed_time % 1000))
+	local duration="${seconds}.${milliseconds}"
+
+	# Print the elapsed time
+	echo "${bbred}${duration}${clearcolor} ${bbcyan}seconds${clearcolor}"
+}
+
+tim() {
+
+	# Capture the start time in nanoseconds
+	local start_time=$(date +%s%N)
+
+	# Run the command passed as arguments
+	eval "$@"
+
+	# Capture the end time in nanoseconds
+	local end_time=$(date +%s%N)
+
+	# Calculate the elapsed time in milliseconds
+	local elapsed_time=$(((end_time - start_time) / 1000000))
+	local seconds=$((elapsed_time / 1000))
+	local milliseconds=$((elapsed_time % 1000))
+	local duration="${seconds}.${milliseconds}"
+
+	# Print the elapsed time
+	echo "${bbred}${duration}${clearcolor} ${bbcyan}seconds${clearcolor}"
+}
+# Enable file name autocompletion for the first argument (video file)
+compdef '_files -g "*.mp4"' trim_video
+
+fftrim() {
+
+	if [ "$#" -ne 3 ]; then
+		echo "Usage: trim_video <video_file> <start_time> <end_time>"
+		return 1
+	fi
+
+	local video_file="$1"
+	local start_time="$2"
+	local end_time="$3"
+	local filename=$(basename -- "$video_file")
+	local extension="${filename##*.}"
+	local filename_without_extension="${filename%.*}"
+	local output_file="${filename_without_extension}_${start_time//:/-}_${end_time//:/-}.${extension}"
+
+	# Using more efficient seeking options
+	ffmpeg -i "$video_file" -ss "$start_time" -to "$end_time" -c copy "$output_file"
+
+	if [ $? -eq 0 ]; then
+		echo "Trimmed video saved as: $output_file"
+	else
+		echo "An error occurred during the trimming process."
+	fi
+}
+
+xcp() {
+	cat "$@" | xclip -sel clip
+}
+
+# shellcheck source=/dev/null
+for func in "$HOME"/.zshrc.d/functions.d/* "$HOME"/.zshrc.d/snippets/*; do source "$func"; done

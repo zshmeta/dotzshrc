@@ -1,237 +1,144 @@
-#!/bin/bash env$
-#!/bin/bash env
-#Alias definitions which can be edited/modified with 'aedit' are call\
-ed to zshrc with +=$
+#!/bin/bash
 #Alias definitions which can be edited/modified with 'aedit' are called to zshrc with +=
-$
 
-export EDITOR="nvim"$
-export EDITOR="nvim"
-$
+if command -v nvim &>/dev/null; then
+	export EDITOR="nvim"
+else
+	export EDITOR="nano"
+fi
 
-### But still use emacs-style zsh bindings$
 ### But still use emacs-style zsh bindings
-#bindkey -e$
-#bindkey -e
-$
+bindkey -e
 
-##Aliases for things$
 ##Aliases for things
-alias c=' clear'$
 alias c=' clear'
-alias sd='sudo '$
 alias sd='sudo '
-alias g='google'$
 alias g='google'
-alias d='ddgr'$
 alias d='ddgr'
-alias nvpn='nordvpn'$
 alias nvpn='nordvpn'
-alias s='sgpt'$
 alias s='sgpt'
-alias ts="tailscale"$
 alias ts="tailscale"
-alias ipme='ipme -m'$
 alias ipme='ipme -m'
-alias ts='sudo tailscale'$
 alias ts='sudo tailscale'
-alias rmf='trash'$
 alias rmf='trash'
-alias k9='kill -9'$
 alias k9='kill -9'
-alias mot='motivate | lolcat'$
 alias mot='motivate | lolcat'
-alias zt="sudo zerotier-cli"$
 alias zt="sudo zerotier-cli"
-alias cfl='cloudflared'$
 alias cfl='cloudflared'
-alias cfltn='cloudflared tunnel'$
 alias cfltn='cloudflared tunnel'
-alias ncl="sudo netclient"$
 alias ncl="sudo netclient"
-alias sshconf="\\$EDITOR \\$HOME/.ssh/config"$
 alias sshconf="\$EDITOR \$HOME/.ssh/config"
-alias ctl="sudo systemctl"$
 alias ctl="sudo systemctl"
-alias snapper="sudo snapper"$
 alias snapper="sudo snapper"
-alias btrfs="sudo btrfs"$
 alias btrfs="sudo btrfs"
-alias jctl="journalctl"$
 alias jctl="journalctl"
-alias x='ranger'$
 alias x='ranger'
-alias b='sudo btop'$
 alias b='sudo btop'
-alias btop='sudo btop'$
 alias btop='sudo btop'
-alias rm='rm -i'$
 alias rm='rm -i'
-alias sz="source ~/.zshrc"$
 alias sz="source ~/.zshrc"
-alias fstab='sudo nano /etc/fstab'$
 alias fstab='sudo nano /etc/fstab'
-alias lsusb="lsplug"$
 alias lsusb="lsplug"
-alias exz="exec zsh"$
 alias exz="exec zsh"
-alias q="exit"$
+alias exb="exec bash"
 alias q="exit"
-alias reboot='sudo shutdown -r now'$
 alias reboot='sudo shutdown -r now'
-alias shutdown='sudo shutdown'$
 alias shutdown='sudo shutdown'
-alias shutr='sudo shutdown -r now'$
 alias shutr='sudo shutdown -r now'
-alias dbx='distrobox'$
 alias dbx='distrobox'
-alias g='googler'$
-alias g='googler'
-alias brewin='brew install'$
+alias g='google'
 alias brewin='brew install'
-alias brews='brew search'$
 alias brews='brew search'
-alias brewun='brew uninstall'$
 alias brewun='brew uninstall'
-alias brewup='brew upgrade'$
 alias brewup='brew upgrade'
-$
+alias s3='s3cmd'
+alias aws3='aws s3'
 
 #gh$
 #gh
-alias cop='gh copilot'$
 alias cop='gh copilot'
-alias cops='gh copilot suggest'$
 alias cops='gh copilot suggest'
-alias cope='gh copilot explain'$
 alias cope='gh copilot explain'
-alias 'ghclone'='gh repo clone'$
-alias 'ghclone'='gh repo clone'
-alias 'ghsr'='gh search repos'$
-alias 'ghsr'='gh search repos'
-#cd$
-#cd
-alias cd=' cd'$
-alias cd=' cd'
-alias ..=' cd ..; ls'$
-alias ..=' cd ..; ls'
-alias ...=' cd ..; cd ..; ls'$
-alias ...=' cd ..; cd ..; ls'
-alias ....=' cd ..; cd ..; cd ..; ls'$
-alias ....=' cd ..; cd ..; cd ..; ls'
-alias cd..='..'$
+alias ghcr='gh repo clone'
+alias ghsr='gh search repos'
+
+alias cd='cd'
+alias ..=' cd ..; eza  --long --grid --octal-permissions --classify --extended --icons --time=modified'
+alias ...=' cd ..; cd ..; eza  --long --grid --octal-permissions --classify --extended --icons --time=modified'
+alias ....=' cd ..; cd ..; cd ..; eza  --long --grid --octal-permissions --classify --extended --icons --time=modified'
 alias cd..='..'
-alias cd...='...'$
 alias cd...='...'
-alias cd....='....'$
 alias cd....='....'
-#ls$
-#ls
-alias ls='exa  --long --grid --octal-permissions --classify --extende\
-d --icons --time=modified'$
-alias ls='exa  --long --grid --octal-permissions --classify --extended --icons --time=modified'
-alias lsd='lsd --date relative --icon-theme fancy --human-readable --\
-permission octal --classify --color=always --extensionsort --group-di\
-rs first --icon always --size short --total-size --header --blocks=pe\
-rmission,date,size,user,name '$
-alias lsd='lsd --date relative --icon-theme fancy --human-readable --permission octal --classify --color=always --extensionsort --group-dirs first --icon always --size short --total-size --header --blocks=permission,date,size,user,name '
-$
 
-alias lstree='lsd --color  always --date  relative --tree  --total-si\
-ze  --timesort  --icon-theme  fancy --long  --human-readable -A'$
+# ls
+alias lsx='eza  --grid --octal-permissions --classify --extended --icons --time=modified'
+alias ls='lsd --header  --sizesort --reverse --total-size --date=relative --icon-theme=unicode --tree --depth=1 --human-readable --blocks=user,size,date,name'
 alias lstree='lsd --color  always --date  relative --tree  --total-size  --timesort  --icon-theme  fancy --long  --human-readable -A'
-alias la='ls -a'$
-alias la='ls -a'
-alias lla='ls -la'$
-alias lla='ls -la'
-alias ltree='lsd --color  always --date  relative --tree  --total-siz\
-e  --timesort  --icon-theme  fancy --long  --human-readable --tree'$
+alias la='lsd -a'
+alias lla="ls -la"
 alias ltree='lsd --color  always --date  relative --tree  --total-size  --timesort  --icon-theme  fancy --long  --human-readable --tree'
-alias nls='natls -l --time-format %t'$
 alias nls='natls -l --time-format %t'
-$
+alias l="lsd -lh --almost-all"
+alias lss="lsd --total-size --sizesort --human-readable"
 
-#zypper$
 #zypper
-alias zyper="sudo zypper"$
 alias zyper="sudo zypper"
-alias zypup="sudo zypper ref"$
 alias zypup="sudo zypper ref"
-alias zypdup="sudo zypper dup"$
 alias zypdup="sudo zypper dup"
-alias zypin="sudo zypper in"$
 alias zypin="sudo zypper in"
-alias zyprm="sudo zypper rm"$
 alias zyprm="sudo zypper rm"
-alias zypsr='sudo zypper search'$
 alias zypsr='sudo zypper search'
-#pacman$
-#pacman
-alias pac='sudo pacman'$
-alias pac='sudo pacman'
-alias pacman='sudo pacman'$
-alias pacman='sudo pacman'
-alias pacup="sudo pacman -Syyuuv"$
-alias pacup="sudo pacman -Syyuuv"
-alias pacin="sudo pacman -S "$
-alias pacin="sudo pacman -S "
-alias pacrm="pacman -Rs"$
-alias pacrm="pacman -Rs"
-alias paccls='pacman -Qdtq | pacman -Rns -'$
-alias paccls='pacman -Qdtq | pacman -Rns -'
-#apt$
-#apt
-alias apt='sudo apt'$
-alias apt='sudo apt'
-alias aptup='sudo apt update'$
-alias aptup='sudo apt update'
-alias aptdup='sudo apt upgrade'$
-alias aptdup='sudo apt upgrade'
-alias aptin='sudo apt install -y'$
-alias aptin='sudo apt install -y'
-alias aprm='sudo apt remove'$
-alias aprm='sudo apt remove'
-alias aptsr='sudo apt search'$
-alias aptsr='sudo apt search'
-alias aptcls='sudo apt clean'$
-alias aptcls='sudo apt clean'
-#dnf$
-#dnf
-alias dnf='sudo dnf'$
-alias dnf='sudo dnf'
-alias dnfup='sudo dnf update'$
-alias dnfup='sudo dnf update'
-alias dnfdup='sudo dnf upgrade'$
-alias dnfdup='sudo dnf upgrade'
-alias dnfin='sudo dnf install -y'$
-alias dnfin='sudo dnf install -y'
-alias dnfrm='sudo dnf remove'$
-alias dnfrm='sudo dnf remove'
-alias dnfsr='sudo dnf search'$
-alias dnfsr='sudo dnf search'
-alias dnfcls='sudo dnf clean all'$
-alias dnfcls='sudo dnf clean all'
-# yum$
-# yum
-alias yumup='sudo yum update'$
-alias yumup='sudo yum update'
-alias yumin='sudo yum install -y'$
-alias yumin='sudo yum install -y'
-alias yumrm='sudo yum remove'$
-alias yumrm='sudo yum remove'
-alias yumsr='sudo yum search'$
-alias yumsr='sudo yum search'
-alias yumcls='sudo yum clean all'$
-alias yumcls='sudo yum clean all'
-alias inc='incus'$
-alias inc='incus'
-alias netcl='sudo netclient'$
-alias netcl='sudo netclient'
-$
 
-alias brewin="brew install"$
+#pacman
+alias pac='sudo pacman'
+alias pacman='sudo pacman'
+alias pacup="sudo pacman -Syyuuv"
+alias pacin="sudo pacman -S "
+alias pacrm="pacman -Rs"
+alias paccls='pacman -Qdtq | pacman -Rns -'
+
+#apt
+alias apt='sudo apt'
+alias aptup='sudo apt update'
+alias aptdup='sudo apt upgrade'
+alias aptin='sudo apt install -y'
+alias aprm='sudo apt remove'
+alias aptsr='sudo apt search'
+alias aptcls='sudo apt clean'
+
+#dnf
+alias dnf='sudo dnf'
+alias dnfup='sudo dnf update'
+alias dnfdup='sudo dnf upgrade'
+alias dnfin='sudo dnf install -y'
+alias dnfrm='sudo dnf remove'
+alias dnfsr='sudo dnf search'
+alias dnfcls='sudo dnf clean all'
+
+# yum
+alias yumup='sudo yum update'
+alias yumin='sudo yum install -y'
+alias yumrm='sudo yum remove'
+alias yumsr='sudo yum search'
+alias yumcls='sudo yum clean all'
+alias inc='incus'
+alias netcl='sudo netclient'
+
+# other installs
 alias brewin="brew install"
-alias brewup="brew update; brew upgrade"$
 alias brewup="brew update; brew upgrade"
-alias brews="brew search"$
 alias brews="brew search"
+alias uptin="sudo upt install"
+alias uptrm="sudo upt remove"
+alias uptup="sudo upt update"
+alias ruasr="rua search"
+alias ruain="rua install"
+alias ruaup="rua upgrade"
+alias stb='setbucket'
+alias nctl='nerdctl'
+alias jsfs=juicefs
+alias venv='python -m venv'
+alias pkgxls='eza --header --sort size --icons always --colour always --colour-scale all --colour-scale-mode gradient --width 77 $HOME/.pkgx/'
+alias pkgxin='pkgx install'
+alias pkgxun='pkgx uninstall'
+alias aider='aider --model gemini/gemini-1.5-pro-latest'

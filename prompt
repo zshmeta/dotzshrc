@@ -1,5 +1,7 @@
-#!/bin/bash
+#!/usr/bin/env zsh
 # shellcheck disable=SC2154
+
+autoload -Uz vcs_info
 
 TRAPALRM() {
 
@@ -8,59 +10,105 @@ TRAPALRM() {
     fi
 }
 TMOUT=1
-# Array of colors 
-colors=( 196 226 46 21 51 198 228 45 )                          
-# Array of color variables
-color_variables=(color_base color_sym color_text color_num color_branch color_repo)
 
-# Shuffle colors array
-colors=("$(for i in "${colors[@]}"; do echo "$i"; done | shuf)")
+prompt(){
+
+colors=(196 226 46 21 51 198 228 45)
+shuffled_colors=($(shuf -e "${colors[@]}"))
+color_base=${shuffled_colors[1]}
+color_sym=${shuffled_colors[2]}
+color_text=${shuffled_colors[3]}
+
+# Get the current distro
+distro() {
+    if [[ -f /etc/os-release ]]; then
+        . /etc/os-release
+        echo "$ID"
+    else
+        uname -s
+    fi
+}
+
+# Get the free memory
+free_mem() {
+    free -h | awk 'NR==2{print $4}'
+}
+
+# Get the ts IP address
+tsip=${TSIP:-$(ip addr show | grep 'inet 100.' | awk '{print $2}' | cut -d'/' -f1 | head -n 1)} && grep -q "^export TSIP=" $HOME/.zshrc || echo "export TSIP=$tsip" >> $HOME/.zshrc
+
+# get the current Git branch
+git_branch() {
+  git branch 2>/dev/null | sed -n '/\* /s///p'
+}
 
 
- for ((i=0; i<${#color_variables[@]}; i++)); do
-  if [[ -n "${color_variables[$i]}" ]]; then
-    eval "${color_variables[$i]}='${colors[$i]}'"
-  fi
-done
- 
-# Array of bright colors
-colors=( 196 226 46 21 51 198 228 45 )                          
-for col in color_base color_sym color_text color_num color_branch color_repo; do
-  eval "$col"="$(shuf -e "${colors[@]}" -n 1)"
-  colors=("${colors[@]/$col}")
-done
 
+# display the env or branch
+which_env() {
+    if [[ -n $VIRTUAL_ENV ]]; then
+        basename "$VIRTUAL_ENV"
+    else
+        local branch=$(git_branch)
+        if [[ -n $branch ]]; then
+            echo "$(basename "$PWD") - $branch"
+        else
+            echo "$(basename "$PWD")"
+        fi
+    fi
+}
 
-    autoload -Uz vcs_info
-    zstyle ':vcs_info:*' enable git
-    zstyle ':vcs_info:git:*' formats "%F{$color_sym}git%F{$color_base}:(%F{$color_branch}%b%F{$color_repo}%m%F{$color_base})" 
-    vcs_info
+# display decoration
+interlude(){
+  text="ﺃ ﺏ ﺕ ﺙ ﺝ ﺡ ﺥ ﺩ ﺫ ﺭ ﺯ ﺱ ﺵ ﺹ ﺽ ﻁ ﻅ ﻉ ﻍ ﻑ ﻕ ﻙ  ﻅ ﻉ ﻍ ﻑ ﻕ ﻙ ﻝ ﻡ ﻥ ﻩ ﻭ ﻱﺃ ﺏ ﺕ ﺙ ﺝ ﺡ ﺥ ﺩ ﺫ ﺭ ﺯ ﺱ ﺵ ﺹ ﺽ ﻁ ﻅ ﻉ ﻍ ﻑ ﻕ ﻙ ﻝ ﻡ ﻥ ﻩ ﻭ ﻱ"
+  interlude=""
+  for ((i = 0; i < ${#text}; i++)); do
+       # shellcheck disable=SC2128
+       interlude+="%F{$colors}%F{${colors[$RANDOM % ${#colors[@]}]}}${text:$i:1}%F{$color_base}"
+  done 
+  echo $interlude
+}
 
-    free=$(free -h | awk 'NR==2{print $4}')
-    tsip=$(\tailscale ip -4 2>/dev/null)
-    myip=$(curl -sSL http://ipecho.net/plain -4; echo)
-    freemem="%F{$color_base}{%F{$color_branch}RAM%F{$color_sym}:%F{$color_num}$free%F{$color_base}}"
-    RPROMPT="%F{$color_base}[%F{$color_text}%w%F{$color_sym} at %F{$color_text}%T%F{$color_base}]"
-    ts_ip="{%F{$color_branch}ip%F{$color_sym}:%F{$color_num}$tsip%F{$color_base}}"
-    my_ip="{%F{$color_branch}ip%F{$color_sym}:%F{$color_num}$myip%F{$color_base}}"
-    # RPROMPT="{%F{$color_text} %m %F{$color_base}}$RPROMPT"
-    
-distro=$(awk -F'=' '/^ID=/{print $2}' /etc/os-release | cut -d'"' -f2 | lolcat)
+# Prepare components for the prompt
+local ts_ip="%F{$color_sym}{%F{$color_base}ip%F{$color_sym}:%F{$color_text} $tsip %F{$color_sym}}%F{$color_base}"
+local whichenv="%F{$color_sym}{%F{$color_text} $(which_env) %F{$color_sym}}%F{$color_base}"
+local freemem="%F{$color_sym}{%F{ $color_base}mem%F{$color_sym}:%F{$color_text} $(free_mem) %F{$color_sym}}%F{$color_base}"
+local distnhost="%F{$color_sym}{%F{$color_text} $(distro) %F{$color_sym}-%F{$color_text} %m %F{$color_sym}}%F{$color_base}"
+local interlude="%F{$color_sym}{ $(interlude) %F{$color_sym}}%F{$color_base}"
+local gitbranch="%F{$color_sym}{%F{$color_base} git%F{$color_sym}:%F{$color_text} $(git_branch) %F{$color_sym}}%F{$color_base}"
+# local laststatus="%F{$color_sym}{%F{$color_text} $laststatus %F{$color_sym}}%F{$color_base}"
 
-    colors=( 196 226 46 21 51 198 228 45 )                          
-    text="ﺃ ﺏ ﺕ ﺙ ﺝ ﺡ ﺥ ﺩ ﺫ ﺭ ﺯ ﺱ ﺵ ﺹ ﺽ ﻁ ﻅ ﻉ ﻍ ﻑ ﻕ ﻙ ﻝ ﻡ ﻥ ﻩ ﻭ ﻱ"
-    interlude=""
-    for ((i = 0; i < ${#text}; i++)); do
-         # shellcheck disable=SC2128
-         interlude+="%F{$colors}%F{${colors[$RANDOM % ${#colors[@]}]}}${text:$i:1}%F{$color_base}"
-    done
-
-    zstyle ':vcs_info:*'  enable git
-    zstyle ':vcs_info:git:*' formats "%F{$color_sym}git%F{$color_base}:(%F{$color_branch}%b%F{$color_repo}%m%F{$color_base})"
-    vcs_info
-
+# Define the left prompt with the user, host, current time, current directory, and Git branch
 # shellcheck disable=SC2296
-PS1="%$COLUMNS>╡>%F{$color_base}╔┅>>{%F{$color_text}%n%F{$color_base}}┅{%F{$color_text}%m%F{$color_base}}┅(%F{$color_sym}@%F{$color_base})┅{%F{$color_num}🕒%*%F{$color_base}}┅{%F{$color_text}%d%F{$color_base}}┅{%F{$color_text}$distro%F{$color_base}}┅$ts_ip┅${vcs_info_msg_0_}┅${freemem}┅┅${my_ip}┅┅$interlude$interlude$interlude┅${(l:COLUMNS::┅:):-}%<<
-╚>>{%F{$color_text}%1d%F{$color_base}}┅(💰₿)┅%F{$color_text}👉%F{$color_base}"
-export RPROMPT
+PS1="%$COLUMNS>╡>%F{$color_base}╔┅>>%F{$color_sym}{%F{$color_text}%n%F{$color_sym}}%F{$color_base}┅%F{$color_sym}{%F{$color_text}%m%F{$color_sym}}%F{$color_base}┅%F{$color_sym}%F{$color_base}┅%F{$color_sym}{%F{$color_text}🕒%*%F{$color_sym}}%F{$color_base}┅%F{$color_sym}{%F{$color_text}%~%F{$color_sym}}%F{$color_base}┅$distnhost┅$ts_ip┅%F{$color_sym}{%F{$color_text}﷽         %F{$color_sym}}%F{$color_base}┅┅$freemem┅┅┅$interlude┅${(l:COLUMNS::┅:):-}%<<
+╚>>$whichenv┅%F{$color_sym}(💰%F{$color_text}₿%F{$color_sym})%F{$color_text}👉%F{$color_base}"
 
+# Define the right prompt with the last command status, command duration, and current time
+RPROMPT="%F{$color_sym}{%F{$color_text}$laststatus%F{$color_sym}}%F{$color_base}┅%F{$color_sym}{%F{$color_text}$timer_display%F{$color_sym}}%F{$color_base}┅%F{$color_sym}[%F{$color_text} %w%F{red} ▼ %F{$color_text}%T %F{$color_sym}]%F{$color_base}┅╡"
+export RPROMPT
+}
+
+set_start() {
+    timer_start=$(date +%s%3N)
+}
+
+# get last command status
+last_status() {
+  if [ "$?" != 0 ] ; then
+    echo %F{196}✘%f
+  else 
+  # echo in limegreen
+    echo %F{118}✔%f
+  fi
+}
+
+preexec_functions+=(set_start)
+
+precmd_functions+=(promptit)
+promptit() {
+    laststatus=$(last_status)
+    timer_end=$(date +%s%3N)
+    timer_duration=$((timer_end - timer_start))
+    timer_display=$(printf " %d.%02d s " $((timer_duration / 1000)) $(((timer_duration % 1000) / 10)))
+    prompt
+}

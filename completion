@@ -1,0 +1,15 @@
+#!/usr/bin/env zsh
+
+complete -o nospace -C /home/zshmeta/.local/bin/mc mc
+
+for comp in $HOME/.zshrc.d/completions/*; do
+  source $comp
+done
+
+autoload -Uz compinit && compinit
+autoload -Uz bashcompinit && bashcompinit
+
+# extras
+
+
+if [ -f "/home/zshmeta/.config/fabric/fabric-bootstrap.inc" ]; then . "/home/zshmeta/.config/fabric/fabric-bootstrap.inc"; fi

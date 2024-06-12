@@ -1,0 +1,76 @@
+# Set BUN_INSTALL
+export BUN_INSTALL="$HOME/.bun"
+
+# Set yarn paths
+export NVM_DIR="$HOME/.nvm"
+[ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"  # This loads nvm
+
+# Set GOPATH
+export GOPATH="$HOME/.local/go/"
+
+# Set BIN
+export BIN="$HOME/.local/bin/"
+
+# Set teb, minio, and zot variables
+export teb="https://teb.s3.tebi.io/"
+export minio="https://minio.zshmeta.dev"
+export zot="zot.zshmeta.dev"
+
+# PATHS
+PATHS=("/usr/local/sbin:" "/usr/local/bin:" "/usr/sbin:" "/usr/bin:" "/sbin:" "/bin:" "/$PNPM_HOME:" "/$BUN_INSTALL/bin:" "$HOME/.deno/bin:" "$HOME/.yarn/bin:" "$HOME/.local/npm-global/bin:" "$HOME/.local/bin:" "/home/linuxbrew/.linuxbrew/bin:" "$HOME/.cargo/bin:" "$HOME/.local/go/bin:")
+
+# Load bun completions
+# shellcheck disable=SC1091
+[ -s "$HOME/.bun/_bun" ] && source "$HOME/.bun/_bun"
+
+# Sourcing Keys
+source /home/zshmeta/.keys
+
+# bun completions
+[ -s "/home/zshmeta/.bun/_bun" ] && source "/home/zshmeta/.bun/_bun"
+
+# NVM
+[ -s "$NVM_DIR/bash_completion" ] && \. "$NVM_DIR/bash_completion"  # This loads nvm bash_completion
+
+# mc completion
+autoload -U +X bashcompinit && bashcompinit
+complete -o nospace -C /home/zshmeta/.local/bin/mc mc
+
+# Custom Functions
+addpath() {
+  full_path=$(realpath "$1")
+  paths_line=$(grep "PATHS=" "$HOME/.zshrc.d/env")
+  if ! echo "$paths_line" | grep -q "\"$full_path\""; then
+    # Using alternative delimiter `@` to avoid conflict with path slashes
+    new_paths_line=$(echo "$paths_line" | sed "s@}\$@ \"$full_path\"}@")
+    # Ensure the sed command is properly quoted and the substitution pattern is terminated
+    sed -i "s@^PATHS=.*@$new_paths_line@" "$HOME/.zshrc.d/env"
+    echo "Path added. Please source your dotfiles to apply changes."
+  else
+    echo "Path already exists."
+  fi
+}
+
+rmpath() {
+  full_path=$(realpath "$1")
+  if grep -q "\"$full_path\"" "$HOME/.zshrc.d/env"; then
+    sed -i "s| \"$full_path\"||g; s|,\s*}|\}|; s|\(\s*\"\)\s*,|\1|g" "$HOME/.zshrc.d/env"
+    echo "Path removed."
+  else
+    echo "Path did not exist. Current paths:"
+    grep -o '"[^"]*"' "$HOME/.zshrc.d/env" | xargs -I {} echo {}
+  fi
+}
+
+export VOLTA_HOME="$HOME/.volta"
+export PATH="$VOLTA_HOME/bin:$PATH"
+
+eval "$(pyenv virtualenv-init -)"
+for snips in $HOME/.zshrc.d/snippets/*; do
+  source "$snips"
+done
+
+
+# Update PATH
+PATH+=$(echo "${PATHS[@]}" | tr -d ' ')
+export PATH

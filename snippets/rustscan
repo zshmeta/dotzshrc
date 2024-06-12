@@ -1,0 +1,10 @@
+#!/bin/bash
+
+
+# rustscan
+
+rustscan (){
+       
+       docker run -it --rm --name rustscan rustscan/rustscan:latest $@
+       
+}

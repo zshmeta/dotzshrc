@@ -1,0 +1,122 @@
+# compdef garage
+
+_garage_commands() {
+  local -a commands
+  commands=(
+    'block:Low-level debug operations on data blocks'
+    'bucket:Operations on buckets'
+    'convert-db:Convert metadata db between database engine formats'
+    'help:Prints this message or the help of the given subcommand(s)'
+    'key:Operations on S3 access keys'
+    'layout:Operations on the assignment of node roles in the cluster layout'
+    'migrate:Run migrations from previous Garage version (DO NOT USE WITHOUT READING FULL DOCUMENTATION)'
+    'node:Operations on individual Garage nodes'
+    'offline-repair:Offline reparation of node data (these repairs must be run offline directly on the server node)'
+    'repair:Start repair of node data on remote node'
+    'server:Run Garage server'
+    'stats:Gather node statistics'
+    'status:Get network status'
+    'worker:Manage background workers'
+    'configs:print configs to the screen'
+    'config-gen:Write the config file to /etc/garage.tmol'
+    'kill:Kill all garage instances'
+    '--admin-token:Admin API authentication token, replaces admin.admin_token in config.toml when running the Garage daemon'
+    '--admin-token-file:Admin API authentication token file path, replaces admin.admin_token in config.toml and admin-token when running the Garage daemon'
+    '--allow-world-readable-secrets:Skip permission check on files containing secrets'
+    '--config:Path to configuration file [default: /etc/garage.toml]'
+    '--metrics-token:Metrics API authentication token, replaces admin.metrics_token in config.toml when running the Garage daemon'
+    '--metrics-token-file:Metrics API authentication token file path, replaces admin.metrics_token in config.toml and metrics-token when running the Garage daemon'
+    '--rpc-host:Host to connect to for admin operations, in the format: <full-node-id>@<ip>:<port>'
+    '--rpc-secret:RPC secret network key, used to replace rpc_secret in config.toml when running the daemon or doing admin operations'
+    '--rpc-secret-file:RPC secret network key file, replaces rpc_secret in config.toml and rpc-secret when running the daemon or doing admin operations'
+
+  )
+  local -a layout_commands
+  layout_commands=(
+    'apply:Apply staged changes to cluster layout'
+    'assign:Assign role to Garage node'
+    'config:Configure parameters value for the layout computation'
+    'help:Prints this message or the help of the given subcommand(s)'
+    'remove:Remove role from Garage cluster node'
+    'revert:Revert staged changes to cluster layout'
+    'show:Show roles currently assigned to nodes and changes staged for commit'
+   )
+  local -a node_commands
+  node_commands=(
+    'add:Add a new node to the cluster'
+    'connect:Connect to Garage node that is currently isolated from the system'
+    'id:Print the full node ID (public key) of this Garage node, and its publicly reachable IP address and port if they are specified in config file under rpc_public_addr'
+     )
+  local -a repair_commands  
+  repair_commands=(
+    'block_refs:Repropagate version deletions to the block ref table'
+    'blocks:Repair (resync/rebalance) the set of stored blocks in the cluster'
+    'help:Prints this message or the help of the given subcommand(s)'
+    'mpu:Repropagate object deletions to the multipart upload table'
+    'rebalance:Rebalance data blocks among HDDs on individual nodes'
+    'scrub:Verify integrity of all blocks on disc'
+    'tables:Do a full sync of metadata tables'
+    'versions:Repropagate object deletions to the version table'
+  )
+  local -a worker_commands
+  worker_commands=(
+    'get:Get worker parameter'
+    'info:Get detailed information about a worker'
+    'list:List all workers on Garage node'
+    'set:Set worker parameter'
+  )
+  local -a bucket_commands
+  bucket_commands=(
+    'alias:Alias bucket under new name'
+    'allow:Allow key to read or write to bucket'
+    'cleanup-incomplete-uploads:Clean up (abort) old incomplete multipart uploads'
+    'create:Create bucket'
+    'delete:Delete bucket'
+    'deny:Deny key from reading or writing to bucket'
+    'help:Prints this message or the help of the given subcommand(s)'
+    'info:Get bucket info'
+    'list:List buckets'
+    'set-quotas:Set the quotas for this bucket'
+    'unalias:Remove bucket alias'
+    'website:Expose as website or not'
+  )
+  local -a key_commands
+  key_commands=(
+    'allow:Set permission flags for key'
+    'create:Create new key'
+    'delete:Delete key'
+    'deny:Unset permission flags for key'
+    'help:Prints this message or the help of the given subcommand(s)'
+    'import:Import key'
+    'info:Get key info'
+    'list:List keys'
+    'rename:Rename key'
+  )
+
+
+
+
+
+
+
+
+  if (( CURRENT == 2 )); then
+    _describe -V 'Select a garage command' commands
+  elif [[ $words[2] == "layout" ]]; then
+    _describe -V 'Select a garage layout command' layout_commands
+  elif [[ $words[2] == "node" ]]; then
+    _describe -V 'Select a garage node command' node_commands
+  elif [[ $words[2] == "repair" ]]; then
+    _describe -V 'Select a garage repair command' repair_commands
+  elif [[ $words[2] == "worker" ]]; then
+    _describe -V 'Select a garage worker command' worker_commands
+  elif [[ $words[2] == "bucket" ]]; then
+    _describe -V 'Select a garage bucket command' bucket_commands
+  elif [[ $words[2] == "key" ]]; then
+    _describe -V 'Select a garage key command' key_commands
+  fi
+}
+
+compdef _garage_commands garage
+compdef _garage_commands grg
+

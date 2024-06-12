@@ -1,43 +1,89 @@
-#!/bin/bash 
-
+#function to interact with minio
 #
 # Setting some mc function
-#
-
-
-
-
-
 mcc() {
-  BUCKET=${BUCKET:-minio}
+  CURRBUCKETS=$(mc ls minio/ | awk '{print $5}')
+  BUCKET=$(awk '{print $1}' "$HOME/.bucket")
   cmd="$1"
   shift
-  local found_arg=false
   local args=()
-  for arg in "$@"; do
-      if [[ "$arg" != -* && "$arg" != .* && "$found_arg" == false ]]; then
-          args+=("$BUCKET/$arg")
-          found_arg=true
+
+  if [ $# -eq 0 ]; then
+    args+=("$BUCKET")
+  else
+    for arg in "$@"; do
+    if [[ " ${CURRBUCKETS[*]} " =~ ${arg%%/*} && ! "$arg" =~ ^/ && ! "$arg" =~ ^./ && "$arg" != "." ]]; then
+        args+=("$BUCKET/$arg")
       else
-          args+=("$arg")
+        args+=("$arg")
       fi
-  done
-  if [[ "$found_arg" == false ]]; then
-      args+=("$BUCKET/")
+    done
   fi
-  command mc "$cmd" "${args[@]}"
+  start=$(date +%s)  # Start the timer
+  mc "$cmd" "${args[@]}"
+  end=$(date +%s)  # End the timer
+  echo "# mc $cmd ${args[*]}: $((end - start)) sec."
 }
 
+
+# mcc() {
+#       CURRBUCKETS=$(mc ls | awk '{print $5}')
+#       BUCKET=$(awk '{print $1}' "$HOME"/.bucket )
+#       cmd="$1"
+#       shift
+#       local found_arg=false
+#       local args=()
+#       if [ $# -eq 0 ]; then
+#             args+=("$BUCKET/")
+#       else
+#             for arg in "$@"; do
+#                   if [[ "$arg" != -* && "$arg" != .* && "$found_arg" == true ]]; then
+#                         if [[ " ${CURRBUCKETS[*]} " =~ $arg ]]; then
+#                               args+=("$BUCKET/$arg")
+#                         else
+#                               args+=("$BUCKET")
+#                         fi
+#                         found_arg=false # Reset for next arg
+#                   else
+#                         args+=("$arg")
+#                         found_arg=true
+#                   fi
+#             done
+#       fi
+#       echo "$cmd" "${args[@]}"
+#       echo -------------------------------------
+#       mc "$cmd" "${args[@]}"
+# }
+
+# mcc() {
+#   BUCKET=$(cat "$HOME"/.bucket)
+#   cmd="$1"
+#   shift
+#   local found_arg=false
+#   local args=()
+#   for arg in "$@"; do
+      # if [[ "$arg" != -* && "$arg" != .* && "$found_arg" == false ]]; then
+      #     args+=("$BUCKET/$arg")
+      #     found_arg=true
+      # else
+      #     args+=("$arg")
+      # fi
+#   done
+#   if [[ "$found_arg" == false ]]; then
+      # args+=("$BUCKET/")
+#   fi
+#   command mc "$cmd" "${args[@]}"
+# }
 
 # mrun would get the file chmod it run it then suppress it
 #
 mrun() {
-    BUCKET=${BUCKET:-minio}
+    BUCKET=$(cat "$HOME"/.bucket | awk '{print $1}')
     if [ -z "$1" ]; then
         echo "Usage: mrun <file>"
         return 1
     fi
-    mc cp $BUCKET/scripts/"$1" "$1"
+    mc cp "$BUCKET"/scripts/"$1" "$1"
     # shellcheck disable=SC2181
     if [ $? -ne 0 ]; then
         echo "Error: failed to copy $1"
@@ -52,12 +98,12 @@ mrun() {
 # msource does the sam but source the file
 #
 msource() {
-    BUCKET=${BUCKET:-minio}
+    BUCKET=$(cat "$HOME"/.bucket | awk '{print $1}')
     if [ -z "$1" ]; then
         echo "Usage: msource <file>"
         return 1
     fi
-    mc copy $BUCKET/funcs/"$1" "$1"
+    mc copy "$BUCKET"/funcs/"$1" "$1"
     # shellcheck disable=SC2181
     if [ $? -ne 0 ]; then
         echo "Error: failed to copy $1"
@@ -71,4 +117,88 @@ msource() {
     rm -rf "$1"
 }
 
+
+mls(){
+      # BUCKET=$(cat "$HOME"/.bucket| awk '{print $1}')      
+      mcc ls "$@"
+      }
+#-------------------------------------------------------------------------      
+
+mcat(){
+      # BUCKET=$(cat "$HOME"/.bucket| awk '{print $1}')      
+      mcc cat "$@"
+      }
+#-------------------------------------------------------------------------      
+
+mrm(){
+      # BUCKET=$(cat "$HOME"/.bucket| awk '{print $1}')      
+      mcc rm "$@"
+      }
+#-------------------------------------------------------------------------      
+
+mcp(){
+      # BUCKET=$(cat "$HOME"/.bucket| awk '{print $1}')      
+      mcc cp "$@"
+      }
+#-------------------------------------------------------------------------      
+
+mput(){
+      # BUCKET=$(cat "$HOME"/.bucket| awk '{print $1}')      
+      mcc put "$@"
+      }
+#-------------------------------------------------------------------------      
+
+mget(){
+      # BUCKET=$(cat "$HOME"/.bucket| awk '{print $1}')      
+      mcc get "$@"
+      }
+#-------------------------------------------------------------------------      
+
+mfind(){
+      # BUCKET=$(cat "$HOME"/.bucket| awk '{print $1}')      
+      mcc find "$@"
+      }
+#-------------------------------------------------------------------------      
+
+mstat(){
+      # BUCKET=$(cat "$HOME"/.bucket| awk '{print $1}')      
+      mcc stat "$@"
+      }
+#-------------------------------------------------------------------------      
+
+mdu(){
+      # BUCKET=$(cat "$HOME"/.bucket| awk '{print $1}')      
+      mcc du "$@"
+      }
+#-------------------------------------------------------------------------      
+
+mmv(){
+      # BUCKET=$(cat "$HOME"/.bucket| awk '{print $1}')      
+      mcc mv "$@"
+      }
+#-------------------------------------------------------------------------      
+
+mmb(){
+      # BUCKET=$(cat "$HOME"/.bucket| awk '{print $1}')      
+      mcc mb "$@"
+      }
+#-------------------------------------------------------------------------      
+
+mrb(){
+      # BUCKET=$(cat "$HOME"/.bucket| awk '{print $1}')      
+      mcc rb "$@"
+      }
+#-------------------------------------------------------------------------      
+
+mlsr(){
+      # BUCKET=$(cat "$HOME"/.bucket| awk '{print $1}')      
+      mcc ls "$@"
+      }
+#-------------------------------------------------------------------------      
+
+mmrr(){
+      # BUCKET=$(cat "$HOME"/.bucket| awk '{print $1}')      
+      mcc mirror "$@"
+      }
+#-------------------------------------------------------------------------      
 

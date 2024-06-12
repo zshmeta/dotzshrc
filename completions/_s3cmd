@@ -1,0 +1,112 @@
+#!/usr/bin/env bash
+
+#compdef s3cmd
+
+function _s3cmd {
+  local -a commands
+      commands=(
+        'mb:Make bucket'
+        'rb:Remove bucket'
+        'ls:List objects or buckets'
+        'la:List all object in all buckets'
+        'put:Put file into bucket'
+        'get:Get file from bucket'
+        'cp:Copy object'
+        'mv:Move object'
+        'del:Delete file from bucket'
+        'rm:Delete file from bucket (alias for del)'
+        'sync:Synchronize a directory tree to S3'
+        'du:Disk usage by buckets'
+        'info:Get various information about Buckets or Files'
+        'setacl:Modify Access control list for Bucket or Files'
+        'setversioning:Modify Bucket Versioning'
+        'setownership:Modify Bucket Object Ownership'
+        'setblockpublicaccess:Modify Block Public Access rules'
+        'setobjectlegalhold:Modify Object Legal Hold'
+        'setobjectretention:Modify Object Retention'
+        'setpolicy:Modify Bucket Policy'
+        'delpolicy:Delete Bucket Policy'
+        'setcors:Modify Bucket CORS'
+        'delcors:Delete Bucket CORS'
+        'multipart:Show multipart uploads'
+        'abortmp:Abort a multipart upload'
+        'listmp:List parts of a multipart upload'
+        'accesslog:Enable/disable bucket access logging'
+        'signurl:Sign an S3 URL to provide limited public access with expiry'
+        'fixbucket:Fix invalid file names in a bucket'
+        'settagging:Modify tagging for Bucket or Files'
+        'gettagging:Get tagging for Bucket or Files'
+        'deltagging:Delete tagging for Bucket or Files'
+        'expire:Set or delete expiration rule for the bucket'
+        'setlifecycle:Upload a lifecycle policy for the bucket'
+        'getlifecycle:Get a lifecycle policy for the bucket'
+        'dellifecycle:Remove a lifecycle policy for the bucket'
+        'setnotification:Upload a notification policy for the bucket'
+        'getnotification:Get a notification policy for the bucket'
+        'delnotification:Remove a notification policy for the bucket'
+        'ws-create:Create Website from bucket'
+        'ws-delete:Delete Website'
+        'ws-info:Info about Website'
+
+      )
+
+      local -a args
+      args=(
+        '--help:Show help' 
+        '--configure:Interactive (re)configuration' 
+        '--config:Config file path' 
+        '--dump-config:Dump current configuration and exit' 
+        '--access_key=:AWS Access Key' 
+        '--secret_key=:AWS Secret Key' 
+        '--access_token=:AWS Access Token' 
+        '--dry-run:Dry run mode' 
+        '--ssl:Use HTTPS' 
+        '--no-ssl:Dont use HTTPS' 
+        '--force:Force overwrite' 
+        '--continue:Continue getting a partially downloaded file' 
+        '--continue-put:Continue uploading partially uploaded files' 
+        '--upload-id=:UploadId for Multipart Upload' 
+        '--skip-existing:Skip over files that exist at destination' 
+        '--recursive:Recursive operation' 
+        '--exclude=:Exclude files matching GLOB' 
+        '--include=:Include files matching GLOB' 
+        '--region=:Region to create bucket' 
+        '--host=:HOSTNAME for S3 endpoint' 
+        '--host-bucket=:DNS-style bucket+hostname template' 
+        '--limit-rate=:Limit transfer rate in bytes' 
+        '--stop-on-error:Stop on first error' 
+        '--verbosity=:Verbosity level(warning info debug)' 
+        '--version:Print version info and exit' 
+        '--progress:Display progress meter'
+        '--no-progress:Do not display progress meter'
+        '-H:Print sizes in human readable format'
+        '--stats:Print transfer statistics'
+        '--debug:Debug output'
+        
+          )
+
+       _describe  -V  's3cmd command' commands
+       _describe -V 's3cmd args' args
+
+      words=("$@")
+      if [[ ${words[2]} =~ ^(put|get|cp|mv|del|rm|sync)$ ]]; then
+           _files
+       fi
+}
+
+compdef  _s3cmd s3cmd
+
+
+
+_setbucket(){
+  local -a buckets
+  
+  # shellcheck disable=SC2034
+  buckets=( 
+    'teb:served at https://teb.s3.tebio.io' 
+    'minio:served at https://minio.zshmeta.dev/' 
+    )
+  _describe  'buckets' buckets
+}
+
+compdef _setbucket setbucket

@@ -14,6 +14,7 @@ feedSUCCESS(){
 
 # Tailscale API Key
 export TS_API_KEY=${TS_API_KEY:- }
+TS_API_KEY=tskey-api-kr9XoN4AcQ11CNTRL-8WFTrTxbjqZoJqVz2saRqZS4WNPQvib94
 set_completion() {
   local cur cmd
   COMPREPLY=()
@@ -140,4 +141,4 @@ tsip() {
   fi
   tsapi "device/$nodeId/ip" "POST"  "$optcalls"
 }
-complete -F set_completion tsget tsrm tsroute tsid
+
