@@ -224,12 +224,8 @@ whisp(){
         elif [[ "$arg" == "--extras" ]] then
             arg=""
         fi
-        echo "$WHISP_MODEL"
-        echo "$arg"
-        # args+=("$arg")
         WHISP_MODEL+=("$arg")
     done
-    echo "${WHISP_MODEL[@]}"
     bash -c "$WHISP_MODEL"
 }
 
