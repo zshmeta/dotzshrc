@@ -187,8 +187,10 @@ _whisp() {
         _describe -V 'Output Format' output_formats
     elif [[ ${words[index]} == "--output_dir" ]] || [[ ${words[index]} == "-o" ]]; then
         _files -/
-    elif [[ ${words[index]} == "--language" ]] || [[ ${words[index]} == "--translate" ]]; then
+    elif [[ ${words[index]} == "--language" ]]; then    
         _describe -V 'Language' languages
+     [[ ${words[index]} == "--translate" ]]; then
+        _message "language by adding --language and chosing one"
     elif [[ ${words[index]} == "--device" ]]; then
         _describe -V 'Device' devices
     elif [[ ${words[index]} == "--compute_type" ]]; then
@@ -223,7 +225,7 @@ whisp(){
         if [[ "$arg" == "--word_timestamps" ]]|| [[ "$arg" == "--live_transcribe" ]] || [[ "$arg" == "--vad_filter" ]] || [[ "$arg" == "--print_colors" ]] || [[ "$arg" == "--highlight_words" ]] || [[ "$arg" == "--pretty_json" ]] || [[ "$arg" == "--verbose" ]] || [[ "$arg" == "--condition_on_previous_text" ]] || [[ "$arg" == "--suppress_blank" ]]; then
             args+=" $arg true"
         elif [[ "$arg" == "--translate" ]]; then
-            args+=" --task translate --language"
+            args+=" --task translate"
         elif [[ "$arg" == "--extras" ]] then
             arg=" "
         else
