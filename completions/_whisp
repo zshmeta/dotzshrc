@@ -189,7 +189,7 @@ _whisp() {
         _files -/
     elif [[ ${words[index]} == "--language" ]]; then    
         _describe -V 'Language' languages
-     [[ ${words[index]} == "--translate" ]]; then
+    elif  [[ ${words[index]} == "--translate" ]]; then
         _message "language by adding --language and chosing one"
     elif [[ ${words[index]} == "--device" ]]; then
         _describe -V 'Device' devices
