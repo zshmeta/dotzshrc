@@ -1,13 +1,11 @@
-#!/usr/bin/env zsh
+
+autoload -Uz compinit; compinit
 
 complete -o nospace -C /home/zshmeta/.local/bin/mc mc
 
 for comp in $HOME/.zshrc.d/completions/*; do
   source $comp
 done
-
-autoload -Uz compinit && compinit
-autoload -Uz bashcompinit && bashcompinit
 
 # extras
 

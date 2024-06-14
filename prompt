@@ -35,7 +35,7 @@ free_mem() {
 }
 
 # Get the ts IP address
-tsip=${TSIP:-$(ip addr show | grep 'inet 100.' | awk '{print $2}' | cut -d'/' -f1 | head -n 1)} && grep -q "^export TSIP=" $HOME/.zshrc || echo "export TSIP=$tsip" >> $HOME/.zshrc
+tsip=$(ip addr show | grep 'inet 100.' | awk '{print $2}' | cut -d'/' -f1 | head -n 1)}
 
 # get the current Git branch
 git_branch() {
@@ -70,7 +70,7 @@ interlude(){
 }
 
 # Prepare components for the prompt
-local ts_ip="%F{$color_sym}{%F{$color_base}ip%F{$color_sym}:%F{$color_text} $tsip %F{$color_sym}}%F{$color_base}"
+local ts_ip="%F{$color_sym}{%F{$color_base}ip%F{$color_sym}:%F{$color_text} $tsip %F{$color_sym}%F{$color_base}"
 local whichenv="%F{$color_sym}{%F{$color_text} $(which_env) %F{$color_sym}}%F{$color_base}"
 local freemem="%F{$color_sym}{%F{ $color_base}mem%F{$color_sym}:%F{$color_text} $(free_mem) %F{$color_sym}}%F{$color_base}"
 local distnhost="%F{$color_sym}{%F{$color_text} $(distro) %F{$color_sym}-%F{$color_text} %m %F{$color_sym}}%F{$color_base}"
@@ -80,7 +80,7 @@ local gitbranch="%F{$color_sym}{%F{$color_base} git%F{$color_sym}:%F{$color_text
 
 # Define the left prompt with the user, host, current time, current directory, and Git branch
 # shellcheck disable=SC2296
-PS1="%$COLUMNS>╡>%F{$color_base}╔┅>>%F{$color_sym}{%F{$color_text}%n%F{$color_sym}}%F{$color_base}┅%F{$color_sym}{%F{$color_text}%m%F{$color_sym}}%F{$color_base}┅%F{$color_sym}%F{$color_base}┅%F{$color_sym}{%F{$color_text}🕒%*%F{$color_sym}}%F{$color_base}┅%F{$color_sym}{%F{$color_text}%~%F{$color_sym}}%F{$color_base}┅$distnhost┅$ts_ip┅%F{$color_sym}{%F{$color_text}﷽         %F{$color_sym}}%F{$color_base}┅┅$freemem┅┅┅$interlude┅${(l:COLUMNS::┅:):-}%<<
+PS1="%$COLUMNS>╡>%F{$color_base}╔┅>>%F{$color_sym}{%F{$color_text}%n%F{$color_sym}}%F{$color_base}┅%F{$color_sym}{%F{$color_text}%m%F{$color_sym}}%F{$color_base}┅%F{$color_sym}%F{$color_base}┅%F{$color_sym}{%F{$color_text}🕒%*%F{$color_sym}}%F{$color_base}┅%F{$color_sym}{%F{$color_text}%~%F{$color_sym}}%F{$color_base}┅$distnhost┅$ts_ip┅%F{$color_sym}{%F{$color_text}﷽       %F{$color_sym}}%F{$color_base}┅┅$freemem┅┅┅$interlude┅${(l:COLUMNS::┅:):-}%<<
 ╚>>$whichenv┅%F{$color_sym}(💰%F{$color_text}₿%F{$color_sym})%F{$color_text}👉%F{$color_base}"
 
 # Define the right prompt with the last command status, command duration, and current time

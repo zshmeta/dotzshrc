@@ -1,6 +1,6 @@
-#!/usr/bin/env bash
-
 #compdef s3cmd
+
+# shellcheck disable=SC2034
 
 function _s3cmd {
   local -a commands

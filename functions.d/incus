@@ -17,7 +17,7 @@ incimg() {
 
 ## List of distros and their versions
 
-rezo_distros=("debian/12" "alpine/edge" "centos/9-Stream" "ubuntu/jammy" "oracle/9" "rockylinux/9" "fedora/39" "amazonlinux/2023" "alt/Sisyphus" "archlinux/current" "almalinux/9" "devuan/chimaera" "funtoo/1.4" "gentoo/current" "kali/current" "mint/victoria" "openeuler/23.03" "opensuse/tumbleweed" "openwrt/23.05" "springdalelinux/9" "plame/8.x" "slackware/current" "busybox/1.36.1" "nixos/23.11" "voidlinux/current"
+rezo_distros=("debian/12" "alpine/edge" "centos/9-Stream" "ubuntu/18.04" "oracle/9" "rockylinux/9" "fedora/39" "amazonlinux/2023" "alt/Sisyphus" "archlinux/current" "almalinux/9" "devuan/chimaera" "funtoo/1.4" "gentoo/current" "kali/current" "mint/victoria" "openeuler/23.03" "opensuse/tumbleweed" "openwrt/23.05" "springdalelinux/9" "plame/8.x" "slackware/current" "busybox/1.36.1" "nixos/23.11" "voidlinux/current"
 )
 
 ## Completion / Args
@@ -384,4 +384,3 @@ incrun() {
 }
 
 compdef _incinit_names incrun
-
