@@ -12,8 +12,9 @@
       '-o:directory to save the outputs (default: current directory)'
       '-f:format of the output file; if not specified, all available formats will be produced (default: all)'
       '--language:Set the language, if different from the audio the model will translate it.'
-      '--initial_prompt:optional text to provide as a prompt for the first window. (default: None)'
+      '--translate:translate the transcribed text to the specified language'
       '--model:name of the Whisper model to use (default: small)'
+      '--initial_prompt:optional text to provide as a prompt for the first window. (default: None)'
       '--vad_filter:enable the voice activity detection (VAD) to filter out parts of the audio without speech. This step is using the Silero VAD model'
       '--live_transcribe:live transcribe mode (default: False)'
       '--hf_token HF_TOKEN:HuggingFace token which enables to download the diarization models. (default: HF_TOKEN)'
@@ -217,12 +218,14 @@ whisp(){
     WHISP_MODEL=${WHISP_MODEL:-whisper-ctranslate2}
     WHISP_MODEL+=(--pretty_json True --print_colors True) 
     # if any arg is mentionned then we append true for args that are default set to false
-
+    arg=""
     for arg in "$@"; do
         if [[ "$arg" == "--word_timestamps" ]]|| [[ "$arg" == "--live_transcribe" ]] || [[ "$arg" == "--vad_filter" ]] || [[ "$arg" == "--print_colors" ]] || [[ "$arg" == "--highlight_words" ]] || [[ "$arg" == "--pretty_json" ]] || [[ "$arg" == "--verbose" ]] || [[ "$arg" == "--condition_on_previous_text" ]] || [[ "$arg" == "--suppress_blank" ]]; then
             arg+=" true"
+        elif [[ "$arg" == "--translate" ]]; then
+            arg+=" --task translate --language"
         elif [[ "$arg" == "--extras" ]] then
-            arg=""
+            arg=" "
         fi
         WHISP_MODEL+=("$arg")
     done
