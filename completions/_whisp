@@ -223,17 +223,16 @@ whisp(){
     args=""
     for arg in "$@"; do
         if [[ "$arg" == "--word_timestamps" ]]|| [[ "$arg" == "--live_transcribe" ]] || [[ "$arg" == "--vad_filter" ]] || [[ "$arg" == "--print_colors" ]] || [[ "$arg" == "--highlight_words" ]] || [[ "$arg" == "--pretty_json" ]] || [[ "$arg" == "--verbose" ]] || [[ "$arg" == "--condition_on_previous_text" ]] || [[ "$arg" == "--suppress_blank" ]]; then
-            args+=" $arg true"
+            args+=" $arg true "
         elif [[ "$arg" == "--translate" ]]; then
             args+=" --task translate"
         elif [[ "$arg" == "--extras" ]] then
             arg=" "
         else
-            args+="$arg"
-        WHISP_MODEL+=("$args")
+            args+=" $arg"
         fi
     done
-    bash -c "$WHISP_MODEL"
+    bash -c "$WHISP_MODEL $args"
 }
 
 compdef _whisp whisp
