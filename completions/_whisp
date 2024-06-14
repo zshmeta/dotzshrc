@@ -183,11 +183,11 @@ _whisp() {
        _files -g '(*.mp3|*.wav|*.flac|*.ogg|*.mp4|*.mkv|*.avi|*.mov|*.webm|*.wmv|*.flv)' 
     elif [[ ${words[index]} == "--model" ]]; then
         _describe -V 'Models' models
-    elif [[ ${words[index]} == "--output_format" || ${words[index]} == "-f" ]]; then
+    elif [[ ${words[index]} == "--output_format" ]] || [[ ${words[index]} == "-f" ]]; then
         _describe -V 'Output Format' output_formats
-    elif [[ ${words[index]} == "--output_dir" || ${words[index]} == "-o" ]]; then
+    elif [[ ${words[index]} == "--output_dir" ]] || [[ ${words[index]} == "-o" ]]; then
         _files -/
-    elif [[ ${words[index]} == "--language" ]]; then
+    elif [[ ${words[index]} == "--language" ]] || [[ ${words[index]} == "--translate" ]]; then
         _describe -V 'Language' languages
     elif [[ ${words[index]} == "--device" ]]; then
         _describe -V 'Device' devices
@@ -216,18 +216,20 @@ _whisp() {
 
 whisp(){
     WHISP_MODEL=${WHISP_MODEL:-whisper-ctranslate2}
-    WHISP_MODEL+=(--pretty_json True --print_colors True) 
+    WHISP_MODEL+=(--pretty_json true) 
     # if any arg is mentionned then we append true for args that are default set to false
-    arg=""
+    args=""
     for arg in "$@"; do
         if [[ "$arg" == "--word_timestamps" ]]|| [[ "$arg" == "--live_transcribe" ]] || [[ "$arg" == "--vad_filter" ]] || [[ "$arg" == "--print_colors" ]] || [[ "$arg" == "--highlight_words" ]] || [[ "$arg" == "--pretty_json" ]] || [[ "$arg" == "--verbose" ]] || [[ "$arg" == "--condition_on_previous_text" ]] || [[ "$arg" == "--suppress_blank" ]]; then
-            arg+=" true"
+            args+=" $arg true"
         elif [[ "$arg" == "--translate" ]]; then
-            arg+=" --task translate --language"
+            args+=" --task translate --language"
         elif [[ "$arg" == "--extras" ]] then
             arg=" "
+        else
+            args+="$arg"
+        WHISP_MODEL+=("$args")
         fi
-        WHISP_MODEL+=("$arg")
     done
     bash -c "$WHISP_MODEL"
 }
