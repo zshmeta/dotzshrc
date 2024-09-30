@@ -35,7 +35,7 @@ free_mem() {
 }
 
 # Get the ts IP address
-tsip=$(ip addr show | grep 'inet 100.' | awk '{print $2}' | cut -d'/' -f1 | head -n 1)}
+tsip=$(ip addr show | grep 'inet 100.' | awk '{print $2}' | cut -d'/' -f1 | head -n 1)
 
 # get the current Git branch
 git_branch() {
@@ -70,7 +70,7 @@ interlude(){
 }
 
 # Prepare components for the prompt
-local ts_ip="%F{$color_sym}{%F{$color_base}ip%F{$color_sym}:%F{$color_text} $tsip %F{$color_sym}%F{$color_base}"
+local ts_ip="%F{$color_sym}{%F{$color_base}ip%F{$color_sym}:%F{$color_text} $tsip %F{$color_sym}}%F{$color_base}"
 local whichenv="%F{$color_sym}{%F{$color_text} $(which_env) %F{$color_sym}}%F{$color_base}"
 local freemem="%F{$color_sym}{%F{ $color_base}mem%F{$color_sym}:%F{$color_text} $(free_mem) %F{$color_sym}}%F{$color_base}"
 local distnhost="%F{$color_sym}{%F{$color_text} $(distro) %F{$color_sym}-%F{$color_text} %m %F{$color_sym}}%F{$color_base}"
@@ -109,6 +109,13 @@ promptit() {
     laststatus=$(last_status)
     timer_end=$(date +%s%3N)
     timer_duration=$((timer_end - timer_start))
-    timer_display=$(printf " %d.%02d s " $((timer_duration / 1000)) $(((timer_duration % 1000) / 10)))
+    timer_duration_seconds=$(( timer_duration / 1000 ))
+    timer_duration_minutes=$(( timer_duration_seconds / 60 ))
+    timer_remaining_seconds=$(( timer_duration_seconds % 60 ))
+    if [[ $timer_duration_minutes -gt 0 ]]; then
+        timer_display=$(printf " %d.%02d m " $timer_duration_minutes $timer_remaining_seconds)
+    else
+        timer_display=$(printf " %d.%02d s " $timer_duration_seconds $(((timer_duration % 1000) / 10)))
+    fi
     prompt
 }

@@ -1,0 +1,82 @@
+#compdef insanely-fast-whisper
+
+_arguments \
+  '(-h --help)'{-h,--help}'[Show help message and exit]' \
+  '--file-name[Path or URL to the audio file to be transcribed]:file name:_files' \
+  '--device-id[Device ID for your GPU. Use a number for CUDA or "mps" for Apple Silicon]:device id:(0 1 2 3 4 5 6 7 8 9 mps)' \
+  '--transcript-path[Path to save the transcription output]:transcript path:_files -/' \
+  '--model-name[Name of the pretrained model/checkpoint to perform ASR]:model name:_model_names' \
+  '--task[Task to perform]:task:(transcribe translate)' \
+  '--language[Language of the input audio]:language:_languages' \
+  '--batch-size[Number of parallel batches you want to compute]:batch size:_numbers' \
+  '--flash[Use Flash Attention 2]' \
+  '--timestamp[Type of timestamp]:timestamp:(chunk word)' \
+  '--hf-token[Hugging Face token for diarization]:hf token:_tokens' \
+  '--diarization_model[Model name for diarization]:diarization model:_models' \
+  '--num-speakers[Exact number of speakers]:num speakers:_numbers' \
+  '--min-speakers[Minimum number of speakers]:min speakers:_numbers' \
+  '--max-speakers[Maximum number of speakers]:max speakers:_numbers' \
+  '*:filename:_files'
+
+# Helper functions for dynamic completions (optional)
+# You can customize these functions based on your environment
+
+# Function to list available models (replace with actual models if needed)
+_model_names() {
+  local models
+  models=(
+    "openai/whisper-large-v3:OpenAI Whisper Large v3"
+    "openai/whisper-base:OpenAI Whisper Base"
+    "tiny:Whisper Tiny"
+    "small:Whisper Small"
+    "medium:Whisper Medium"
+  )
+  _describe 'model name' models
+}
+
+# Function to list available languages (replace with actual languages if needed)
+_languages() {
+  local languages
+  languages=(
+    "en:English"
+    "es:Spanish"
+    "fr:French"
+    "de:German"
+    "zh:Chinese"
+    "ja:Japanese"
+    "ko:Korean"
+    "ru:Russian"
+    "it:Italian"
+    "pt:Portuguese"
+    "ar:Arabic"
+    "hi:Hindi"
+    "bn:Bengali"
+    "pa:Panjabi"
+    # Add more languages as needed
+  )
+  _describe 'language' languages
+}
+
+# Function to list available Hugging Face tokens (placeholder)
+_tokens() {
+  # If you have a predefined list of tokens, you can list them here
+  # Otherwise, treat it as a free-form string
+  _arguments '*:hf token:_files'
+}
+
+# Function to list available diarization models (replace with actual models if needed)
+_models() {
+  local models
+  models=(
+    "pyannote/speaker-diarization:PyAnnote Speaker Diarization"
+    "another-model:Another Diarization Model"
+    # Add more models as needed
+  )
+  _describe 'diarization model' models
+}
+
+# Function to list available numbers (for numeric arguments)
+_numbers() {
+  _values 'number' '0' '1' '2' '3' '4' '5' '6' '7' '8' '9'
+}
+

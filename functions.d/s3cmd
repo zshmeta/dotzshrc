@@ -213,6 +213,12 @@ bucket_args() {
 		echo "-------------------------------------------------------------------"
 		s3cmd --config "$configs" setversioning "s3://$src" --versioning-status="$target"
 		;;
+	"tree")
+		# Print the command message
+		echo -e "\033[1;32;1mBucket: $BUCKET\033[0m  \033[1;31m ✌ 👉\033[0m fixbucket s3://$target"
+		echo "-------------------------------------------------------------------"
+		s3cmd --config "$configs" list "s3://$target"
+		;;
 	"fixbucket")
 		# Print the command message
 		echo -e "\033[1;32;1mBucket: $BUCKET\033[0m  \033[1;31m ✌ 👉\033[0m fixbucket s3://$target"

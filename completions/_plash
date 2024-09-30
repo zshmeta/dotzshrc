@@ -1,0 +1,42 @@
+  # compdef plash
+    
+    
+  _plash() {
+
+    local -a commands
+    commands=(
+    'pull\:docker:Pull image from docker cli'
+    'pull\:lxc:Download image from images.linuxcontainers.org'
+    'pull\:tarfile:Import the image from an file'
+    'pull\:url:Download image from an url'
+    'push\:dir:Export image to a directory'
+    'push\:tarfile:Export image to a file'
+    'create:Create a new image'
+    'mount:Mount image to the host filesystem'
+    'mounted:Run command on a mounted image'
+    'nodepath:Print filesystem path of an image'
+    'parent:Print the parents image'
+    'rm:Remove image and its children'
+    'run:Run command in image'
+    'run\:persist:Run and persist fs changes at DIR'
+    'stack:Create a new image specyfing its layer'
+    'chroot:Flavored chroot'
+    'clean:Remove internal unsused files'
+    'data:Print application data path'
+    'help:print help message'
+    'init:initialize data dir'
+    'map:map lorem ipsum'
+    'mkdtemp:Create tempory data directory'
+    'purge:Remove all application data'
+    'shrink:Remove half of all images'
+    'sudo:run program as userspace root'
+    'version:print version'
+    )
+
+
+    _describe -V 'plash command' commands
+
+  }
+
+
+  compdef _plash plash

@@ -4,12 +4,10 @@ _juicefs() {
   local -a commands
   commands=(
     'auth:Authorize a volume'
-    'destroy:Destroy an existing volume'
-    'gc:Garbage collector of objects in data storage'
-    'fsck:Check consistency of a volume'
-    'dump:Dump metadata into a JSON file'
-    'load:Load metadata from a previously dumped JSON file'
-    'version:Show version'
+    'mount:Mount a volume'
+    'umount:Unmount a volume'
+    'gateway:Start an S3-compatible gateway'
+    'webdav:Start a WebDAV server'
     'quota:Manage directory quotas'
     'heal:Heal a replicated volume'
     'status:Show status of a volume'
@@ -20,10 +18,6 @@ _juicefs() {
     'debug:Collect and display system static and runtime information'
     'doctor:Collect and display system static and runtime information'
     'lsof:List open files'
-    'mount:Mount a volume'
-    'umount:Unmount a volume'
-    'gateway:Start an S3-compatible gateway'
-    'webdav:Start a WebDAV server'
     'bench:Run benchmarks on a path'
     'benchmark:Run benchmarks on a path'
     'objbench:Run benchmarks on an object storage'
@@ -36,8 +30,16 @@ _juicefs() {
     'merge:merge files together without copying'
     'grep:parallelized file pattern searcher'
     'help:Shows a list of commands or help for one command'
+    'destroy:Destroy an existing volume'
+    'gc:Garbage collector of objects in data storage'
+    'fsck:Check consistency of a volume'
+    'dump:Dump metadata into a JSON file'
+    'load:Load metadata from a previously dumped JSON file'
+    'version:Show version'
   )
-  _describe -t commands 'JuiceFS commands' commands
+  _describe -V commands 'JuiceFS commands' commands
 }
 
 compdef _juicefs juicefs
+compdef _juicefs jfs
+

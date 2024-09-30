@@ -1,0 +1,69 @@
+# whispercpp completion for Zsh
+
+_whispercpp() {
+  local -a commands
+
+  commands=(
+    '--help:Show this help message and exit (default)'
+    '--threads:THREADS Number of threads to use during computation (default: 4)'
+    '--processors:PROCESSORS Number of processors to use during computation'
+    '--offset-t:OFFSET_T Time offset in milliseconds (default: 0)'
+    '--offset-n:OFFSET_N Segment index offset (default: 0)'
+    '--duration:DURATION Duration of audio to process in milliseconds (default: 0)'
+    '--max-context:MAX_CONTEXT Maximum number of text context tokens to store (default: -1)'
+    '--max-len:MAX_LEN Maximum segment length in characters (default: 0)'
+    '--split-on-word:Split on word rather than on token (default: false)'
+    '--best-of:BEST_OF Number of best candidates to keep (default: 5)'
+    '--beam-size:BEAM_SIZE Beam size for beam search (default: 5)'
+    '--audio-ctx:AUDIO_CTX Audio context size (0 for all) (default: 0)'
+    '--word-thold:WORD_THOLD Word timestamp probability threshold (default: 0.01)'
+    '--entropy-thold:ENTROPY_THOLD Entropy threshold for decoder fail (default: 2.40)'
+    '--logprob-thold:LOGPROB_THOLD Log probability threshold for decoder fail (default: -1.00)'
+    '--temperature:TEMPERATURE The sampling temperature, between 0 and 1 (default: 0.00)'
+    '--temperature-inc:TEMPERATURE_INC The increment of temperature, between 0 and 1 (default: 0.20)'
+    '--debug-mode:Enable debug mode (e.g., dump log_mel) (default: false)'
+    '--translate:Translate from source language to English (default: false)'
+    '--diarize:Diarize stereo audio (default: false)'
+    '--tinydiarize:TinyDiarize enable (requires a tdrz model) (default: false)'
+    '--no-fallback:Do not use temperature fallback while decoding (default: false)'
+    '--output-txt:Output result in a text file (default: false)'
+    '--output-vtt:Output result in a VTT file (default: false)'
+    '--output-srt:Output result in a SRT file (default: false)'
+    '--output-lrc:Output result in a LRC file (default: false)'
+    '--output-words:Output script for generating karaoke video (default: false)'
+    '--font-pathSystem:FONT_PATH Path to a monospace font for karaoke video (default: /System/Library/Fonts/Supplemental/Courier New Bold.ttf)'
+    '--output-csv:Output result in a CSV file (default: false)'
+    '--output-json:Output result in a JSON file (default: false)' # Corrected typo
+    '--output-json-full:Include more information in the JSON file (default: false)'
+    '--output-file:OUTPUT_FILE Output file path (without file extension)'
+    '--no-prints:Do not print anything other than the results (default: false)'
+    '--print-special:Print special tokens (default: false)'
+    '--print-colors:Print colors (default: false)'
+    '--print-progress:Print progress (default: false)'
+    '--no-timestamps:Do not print timestamps (default: false)'
+    '--language:LANGUAGE Spoken language (auto for auto-detect) (default: e)'
+    '--detect-language:Exit after automatically detecting language (default: false)'
+    '--prompt:PROMPT Initial prompt (max n_text_ctx/2 tokens)'
+    '--model:MODEL Model path (default: models/ggml-base.en.bin)'
+    '--file:FILE Input WAV file path'
+    '--ov-e-device:DEVICE The OpenVINO device used for encode inference (default: CPU)'
+    '--dtw:Compute token-level timestamps using DTW (default: false)'
+    '--log-score:Log best decoder scores of tokens (default: false)'
+    '--no-gpu:Disable GPU (default: false)'
+    '--flash-att:Flash attention (default: false)'
+    '--suppress-regex:SUPPRESS_REGEX Regular expression matching tokens to suppress'
+    '--grammar:GRAMMAR GBNF grammar to guide decoding'
+    '--grammar-rule:GRAMMAR_RULE Top-level GBNF grammar rule name'
+    '--grammar-penalty:PENALTY Scales down logits of non-grammar tokens (default: 100.0)'
+  )
+
+
+  if (( CURRENT == 2 )); then
+    _describe -V "Usage: whispercpp [OPTIONS]" commands
+    elif (( CURRENT == '--file' || '-f' || '--output-file' || '-o' )); then
+    _files
+fi
+
+}
+
+compdef _whispercpp whispercpp

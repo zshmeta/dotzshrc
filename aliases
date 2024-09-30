@@ -53,7 +53,6 @@ alias brewun='brew uninstall'
 alias brewup='brew upgrade'
 alias s3='s3cmd'
 alias aws3='aws s3'
-
 #gh$
 #gh
 alias cop='gh copilot'
@@ -63,15 +62,15 @@ alias ghcr='gh repo clone'
 alias ghsr='gh search repos'
 
 alias cd='cd'
-alias ..=' cd ..; eza  --long --grid --octal-permissions --classify --extended --icons --time=modified'
-alias ...=' cd ..; cd ..; eza  --long --grid --octal-permissions --classify --extended --icons --time=modified'
-alias ....=' cd ..; cd ..; cd ..; eza  --long --grid --octal-permissions --classify --extended --icons --time=modified'
+alias ..=' cd ..; eza  --grid --icons --time=modified --long'
+alias ...=' cd ..; cd ..; eza  --long --grid --long  --time=modified'
+alias ....=' cd ..; cd ..; cd ..; eza  --long --grid  --icons --time=modified'
 alias cd..='..'
 alias cd...='...'
 alias cd....='....'
 
 # ls
-alias lsx='eza  --grid --octal-permissions --classify --extended --icons --time=modified'
+alias lsx='eza --long --grid --icons --no-permissions --no-user --time=modified --total-size'
 alias ls='lsd --header  --sizesort --reverse --total-size --date=relative --icon-theme=unicode --tree --depth=1 --human-readable --blocks=user,size,date,name'
 alias lstree='lsd --color  always --date  relative --tree  --total-size  --timesort  --icon-theme  fancy --long  --human-readable -A'
 alias la='lsd -a'
@@ -142,3 +141,5 @@ alias pkgxls='eza --header --sort size --icons always --colour always --colour-s
 alias pkgxin='pkgx install'
 alias pkgxun='pkgx uninstall'
 alias aider='aider --model gemini/gemini-1.5-pro-latest'
+alias ytd=yt-dlp
+alias yts=yt-script

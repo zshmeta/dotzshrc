@@ -5,12 +5,24 @@
 _weed_comp(){
     local -a args
     args=(
+        "master:start a master server"
+        "volume:start a volume server"
+        "server:start a master server, a volume server, and optionally a filer and a S3 gateway"
+        "mount:mount weed filer to a directory as file system in userspace(FUSE)"
+        "upload:upload one or a list of files"
+        "download:download files by file id"
+        "s3:start a s3 API compatible server that is backed by a filer"
+        "filer:start a file server that points to a master server, or a list of master servers"
+        "webdav:start a webdav server that is backed by a filer"
+        "mq.broker:<WIP> start a message queue broker"
+        "scaffold:generate basic configuration files"
+        "shell:run interactive administrative commands"
+        "update:get latest or specific version from https://github.com/seaweedfs/seaweedfs"
+        "master.follower:start a master follower"
         "backup:incrementally backup a volume to local folder"
         "benchmark:benchmark by writing millions of files and reading them out"
         "compact:run weed tool compact on volume file"
-        "download:download files by file id"
         "export:list or export files from one volume data file"
-        "filer:start a file server that points to a master server, or a list of master servers"
         "filer.backup:resume-able continuously replicate files from a SeaweedFS cluster to another location defined in replication.toml"
         "filer.cat:copy one file to local"
         "filer.copy:copy one or a list of files to a filer folder"
@@ -23,26 +35,14 @@ _weed_comp(){
         "fix:run weed tool fix on files or whole folders to recreate index file(s) if corrupted"
         "fuse:Allow use weed with linux's mount command"
         "iam:start a iam API compatible server"
-        "master:start a master server"
-        "master.follower:start a master follower"
-        "mount:mount weed filer to a directory as file system in userspace(FUSE)"
-        "mq.broker:<WIP> start a message queue broker"
-        "s3:start a s3 API compatible server that is backed by a filer"
-        "scaffold:generate basic configuration files"
-        "server:start a master server, a volume server, and optionally a filer and a S3 gateway"
-        "shell:run interactive administrative commands"
-        "update:get latest or specific version from https://github.com/seaweedfs/seaweedfs"
-        "upload:upload one or a list of files"
         "version:print SeaweedFS version"
-        "volume:start a volume server"
-        "webdav:start a webdav server that is backed by a filer"
     )
 
 
 if (( CURRENT == 2 )); then
-  _describe 'command' args
+  _describe -V 'command' args
 elif (( CURRENT == 3 )); then
- _describe 'files, folders ...'
+ _describe -V'files, folders ...'
 fi
 
 

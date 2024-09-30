@@ -51,8 +51,7 @@ tarx() {
 	fi
 }
 zle -N tarx
-#alias tarx="tar -xzvf"
-#alias tarz="tar -xvf"
+
 tarc() {
 	if [[ "$1" == *.tgz ]] || [[ "$1" == *.tar.gz ]]; then
 		archive="$1"

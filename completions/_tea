@@ -1,1 +1,2 @@
-PROG=tea _CLI_ZSH_AUTOCOMPLETE_HACK=1 source "$HOME/.config/tea/autocomplete.zsh"
+PROG=tea _CLI_ZSH_AUTOCOMPLETE_HACK=1 source "$HOME/.config/tea/autocomplete.zsh" &>/dev/null
+

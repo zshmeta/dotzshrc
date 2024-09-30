@@ -1,0 +1,169 @@
+#compdef whispc
+
+# Helper function for models
+_whispc_models() {
+  local -a models
+  models=(
+    "tiny:Whisper Tiny"
+    "tiny.en:Whisper Tiny English"
+    "base:Whisper Base"
+    "base.en:Whisper Base English"
+    "small:Whisper Small"
+    "small.en:Whisper Small English"
+    "medium:Whisper Medium"
+    "medium.en:Whisper Medium English"
+    "large-v1:Whisper Large v1"
+    "large-v2:Whisper Large v2"
+    "large-v3:Whisper Large v3"
+    "distil-large-v2:Distilled Large v2"
+    "distil-large-v3:Distilled Large v3"
+    "distil-medium.en:Distilled Medium English"
+    "distil-small.en:Distilled Small English"
+  )
+  _describe 'model' models
+}
+
+# Helper function for output formats
+_whispc_output_formats() {
+  local -a formats
+  formats=(
+    "txt:Plain Text"
+    "vtt:Web Video Text Tracks"
+    "srt:SubRip Subtitle"
+    "tsv:Tab-Separated Values"
+    "json:JSON Format"
+    "all:All Available Formats"
+  )
+  _describe 'output format' formats
+}
+
+# Helper function for compute types
+_whispc_compute_types() {
+  local -a compute_types
+  compute_types=(
+    "default:Default Computation"
+    "auto:Automatic Selection"
+    "int8:INT8 Quantization"
+    "int8_float16:INT8 with Float16"
+    "int8_bfloat16:INT8 with BFloat16"
+    "int8_float32:INT8 with Float32"
+    "int16:INT16 Quantization"
+    "float16:Float16 Precision"
+    "float32:Float32 Precision"
+    "bfloat16:BFloat16 Precision"
+  )
+  _describe 'compute type' compute_types
+}
+
+# Helper function for tasks
+_whispc_tasks() {
+  local -a tasks
+  tasks=(
+    "transcribe:Perform Speech Recognition"
+    "translate:Translate to English"
+  )
+  _describe 'task' tasks
+}
+
+# Helper function for languages
+_whispc_languages() {
+  local -a languages
+  languages=(
+    "af:Afrikaans" "am:Amharic" "ar:Arabic" "as:Assamese" "az:Azerbaijani" "ba:Bashkir"
+    "be:Belarusian" "bg:Bulgarian" "bn:Bengali" "bo:Tibetan" "br:Breton" "bs:Bosnian"
+    "ca:Catalan" "cs:Czech" "cy:Welsh" "da:Danish" "de:German" "el:Greek" "en:English"
+    "es:Spanish" "et:Estonian" "eu:Basque" "fa:Persian" "fi:Finnish" "fo:Faroese"
+    "fr:French" "gl:Galician" "gu:Gujarati" "ha:Hausa" "haw:Hawaiian" "he:Hebrew"
+    "hi:Hindi" "hr:Croatian" "ht:Haitian Creole" "hu:Hungarian" "hy:Armenian"
+    "id:Indonesian" "is:Icelandic" "it:Italian" "ja:Japanese" "jw:Javanese" "ka:Georgian"
+    "kk:Kazakh" "km:Khmer" "kn:Kannada" "ko:Korean" "la:Latin" "lb:Letzeburgesch"
+    "ln:Lingala" "lo:Lao" "lt:Lithuanian" "lv:Latvian" "mg:Malagasy" "mi:Maori"
+    "mk:Macedonian" "ml:Malayalam" "mn:Mongolian" "mr:Marathi" "ms:Malay" "mt:Maltese"
+    "my:Myanmar" "ne:Nepali" "nl:Dutch" "nn:Norwegian Nynorsk" "no:Norwegian"
+    "oc:Occitan" "pa:Panjabi" "pl:Polish" "ps:Pushto" "pt:Portuguese" "ro:Romanian"
+    "ru:Russian" "sa:Sanskrit" "sd:Sindhi" "si:Sinhala" "sk:Slovak" "sl:Slovenian"
+    "sn:Shona" "so:Somali" "sq:Albanian" "sr:Serbian" "su:Sundanese" "sv:Swedish"
+    "sw:Swahili" "ta:Tamil" "te:Telugu" "tg:Tajik" "th:Thai" "tk:Turkmen" "tl:Tagalog"
+    "tr:Turkish" "tt:Tatar" "uk:Ukrainian" "ur:Urdu" "uz:Uzbek" "vi:Vietnamese"
+    "yi:Yiddish" "yo:Yoruba" "yue:Cantonese" "zh:Chinese"
+  )
+  _describe 'language' languages
+}
+
+# Helper function for devices
+_whispc_devices() {
+  local -a devices
+  devices=(
+    "auto:Automatic Selection"
+    "cpu:CPU"
+    "cuda:CUDA GPU"
+  )
+  _describe 'device' devices
+}
+
+# Helper function for numeric arguments
+_whispc_numbers() {
+  _values 'number' '0' '1' '2' '3' '4' '5' '6' '7' '8' '9'
+}
+
+# Main completion function
+_whispc() {
+  _arguments \
+    '-h[Show help message and exit]' \
+    '--help[Show help message and exit]' \
+    '--version[Show program version and exit]' \
+    '--model[Name of the Whisper model to use]:model name:_whispc_models' \
+    '--model_directory[Directory to find a CTranslate2 Whisper model]:model directory:_files' \
+    '--model_dir[Path to save model files]:model directory:_files' \
+    '--local_files_only[Use models in cache without connecting to Internet]:local files only' \
+    '--output_dir[Directory to save the outputs]:output directory:_files' \
+    '--output_format[Format of the output file]:output format:_whispc_output_formats' \
+    '--pretty_json[Produce JSON in a human-readable format]:pretty json' \
+    '--print_colors[Print transcribed text with color coding]:print colors' \
+    '--verbose[Print out the progress and debug messages]:verbose' \
+    '--highlight_words[Underline each word in srt and vtt formats]:highlight words' \
+    '--max_line_width[Maximum characters in a line before breaking]:max line width:_whispc_numbers' \
+    '--max_line_count[Maximum number of lines in a segment]:max line count:_whispc_numbers' \
+    '--max_words_per_line[Maximum words per line]:max words per line:_whispc_numbers' \
+    '--device[Device to use for CTranslate2 inference]:device:_whispc_devices' \
+    '--threads[Number of threads for CPU inference]:threads:_whispc_numbers' \
+    '--device_index[Device ID where to place the model]:device index:_whispc_numbers' \
+    '--compute_type[Type of quantization to use]:compute type:_whispc_compute_types' \
+    '--task[Task to perform]:task:_whispc_tasks' \
+    '--language[Language spoken in the audio]:language:_whispc_languages' \
+    '--temperature[Temperature for sampling]:temperature:_whispc_numbers' \
+    '--temperature_increment_on_fallback[Temperature increment on fallback]:temperature increment on fallback:_whispc_numbers' \
+    '--prompt_reset_on_temperature[Reset prompt if temperature is above]:prompt reset on temperature:_whispc_numbers' \
+    '--best_of[Number of candidates when sampling with non-zero temperature]:best of:_whispc_numbers' \
+    '--beam_size[Number of beams in beam search]:beam size:_whispc_numbers' \
+    '--patience[Patience value for beam decoding]:patience:_whispc_numbers' \
+    '--length_penalty[Token length penalty coefficient]:length penalty:_whispc_numbers' \
+    '--suppress_blank[Suppress blank outputs at the beginning]:suppress blank' \
+    '--suppress_tokens[Comma-separated list of token ids to suppress]:suppress tokens:_whispc_numbers' \
+    '--initial_prompt[Optional text as a prompt for the first window]:initial prompt' \
+    '--condition_on_previous_text[Provide previous output as prompt for next window]:condition on previous text' \
+    '--compression_ratio_threshold[Compression ratio threshold to treat decoding as failed]:compression ratio threshold:_whispc_numbers' \
+    '--logprob_threshold[Average log probability threshold to treat decoding as failed]:logprob threshold:_whispc_numbers' \
+    '--no_speech_threshold[Probability threshold to consider segment as silence]:no speech threshold:_whispc_numbers' \
+    '--word_timestamps[Extract word-level timestamps and refine results]:word timestamps' \
+    '--prepend_punctuations[Merge punctuation symbols with the next word]:prepend punctuations' \
+    '--append_punctuations[Merge punctuation symbols with the previous word]:append punctuations' \
+    '--repetition_penalty[Penalty applied to score of previously generated tokens]:repetition penalty:_whispc_numbers' \
+    '--no_repeat_ngram_size[Prevent repetitions of ngrams with this size]:no repeat ngram size:_whispc_numbers' \
+    '--hallucination_silence_threshold[Skip silent periods longer than this threshold]:hallucination silence threshold:_whispc_numbers' \
+    '--vad_filter[Enable voice activity detection to filter out non-speech parts]:vad filter' \
+    '--vad_threshold[Probability threshold for VAD to consider as speech]:vad threshold:_whispc_numbers' \
+    '--vad_min_speech_duration_ms[Minimum speech duration in ms for VAD]:vad min speech duration ms:_whispc_numbers' \
+    '--vad_max_speech_duration_s[Maximum speech duration in seconds for VAD]:vad max speech duration s:_whispc_numbers' \
+    '--hf_token[HuggingFace token to download diarization models]:hf token' \
+    '--speaker_name[Name to identify the speaker]:speaker name' \
+    '--live_transcribe[Enable live transcribe mode]:live transcribe' \
+    '--live_volume_threshold[Minimum volume threshold to activate listening]:live volume threshold:_whispc_numbers' \
+    '--live_input_device[Set live stream input device ID]:live input device:_whispc_numbers' \
+    '1:audio files to transcribe:_files' \
+    '*:filename:_files'
+}
+
+# Register the completion function
+compdef _whispc whispc
+

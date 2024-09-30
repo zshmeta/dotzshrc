@@ -1,30 +1,51 @@
+#!/bin/zsh
 
-# The following lines were added by compinstall
+# Random Color Selection
+colors=(red green cyan yellow blue magenta)
+rand_color=${colors[RANDOM % ${#colors[@]}]}
+
+# Zstyle Configuration
+zstyle ':completion:*' format '%F{'"$rand_color"'} ﷽       %F{limegreen}%d %f'
+zstyle ':compinstall' 'filename' '$HOME/.zshcompfig'
+
+# Basic Completion Settings
 zstyle ':completion:*' completer _expand _complete _ignored _match _approximate _prefix
 zstyle ':completion:*' expand prefix suffix
-zstyle ':completion:*' file-sort access
-zstyle ':completion:*' format 'complete with %d'
-zstyle ':completion:*' group-name ''
+zstyle ':completion:*' file-sort size
 zstyle ':completion:*' list-suffixes true
-zstyle ':completion:*' max-errors 2
+zstyle ':completion:*' max-errors 4
+zstyle ':completion:*:approximate:*' max-errors 4
 zstyle ':completion:*' preserve-prefix '//[^/]##/'
-zstyle ':completion:*' prompt 'did you mean...'
 zstyle ':completion:*' squeeze-slashes true
 zstyle ':completion:*' use-compctl true
 zstyle ':completion:*' verbose true
-zstyle ':compinstall' 'filename' '/home/zshmeta/.zshcompfig'
+
+
 # Use modern completion system
-zstyle ':completion:*' menu select
 zstyle ':completion:*' use-comp-system 'true'
+zstyle ':completion:*' menu select 2
+
 # Group matches and describe.
-zstyle ':completion:*' list-colors 'ma=48;2;76;86;106'
-zstyle ':completion:*:*:*:*:*' menu select
 zstyle ':completion:*:matches' group 'yes'
 zstyle ':completion:*:options' description 'yes'
-zstyle ':completion:*:descriptions' format '%F{yellow}-- %d --%f'
-# Colorize completions.
-zstyle ':completion:*' list-colors ${(s.:.)LS_COLORS}
+zstyle ':completion:*:descriptions' format '%F{'"$rand_color"'}'
 
+# Menu Selection and Error Handling
+zstyle ':completion:*' prompt '%F{'"$rand_color"'} did you mean...%f'
+
+# List Colors for Different Item Types
+zstyle ':completion:*:options' list-colors '%F{'"$rand_color"'}'
+zstyle ':completion:*:commands' list-colors '%F{'"$rand_color"'}'
+zstyle ':completion:*:arguments' list-colors '%F{'"$rand_color"'}'
+
+# Cursor Color (May require additional configuration)
+zstyle ':completion:*' select-prompt '%F{'"$rand_color"'}%p%f'
+
+# Matching Strategy (Experiment for best results)
+zstyle ':completion:*' matcher-list 'm:{a-zA-Z}={A-Za-z}' 
+
+# Zcompdump (Completion Cache)
+zstyle ':completion:*' rehash 'true'  # Rehash completion cache when needed
 
 # Define widget for menu-select
 
@@ -40,3 +61,4 @@ _have() {
   fi
   (( $+commands[$1] ))
 }
+
